@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP, prefersReducedMotion, REVEAL } from "@/lib/gsap";
 import { wedding } from "@/config/wedding";
 import { GoldDivider, SectionLabel, SectionTitle } from "@/components/shared/GoldDivider";
 
@@ -8,24 +8,16 @@ export function VenueExperience() {
 
   useGSAP(
     () => {
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduced) {
-        gsap.set(".ve-rev", { opacity: 1, y: 0 });
+      if (prefersReducedMotion()) {
+        gsap.set(".rv", { opacity: 1, y: 0, filter: "none" });
         return;
       }
 
-      gsap.fromTo(
-        ".ve-rev",
-        { opacity: 0, y: 44 },
-        {
-          opacity: 1,
-          y: 0,
-          stagger: 0.16,
-          duration: 0.9,
-          ease: "power2.out",
-          scrollTrigger: { trigger: rootRef.current, start: "top 76%" },
-        },
-      );
+      gsap.fromTo(".rv", REVEAL.from, {
+        ...REVEAL.to,
+        stagger: REVEAL.stagger,
+        scrollTrigger: { trigger: rootRef.current, start: REVEAL.start },
+      });
     },
     { scope: rootRef },
   );
@@ -35,21 +27,21 @@ export function VenueExperience() {
       ref={rootRef}
       id="venue"
       aria-label="Venue and directions"
-      className="pat-light seam-top px-5 py-20 sm:px-8 sm:py-28"
+      className="pat-light seam-top section-pad"
     >
       <div className="mx-auto max-w-3xl">
-        <div className="ve-rev text-center">
+        <div className="rv text-center">
           <SectionLabel>Join Us At</SectionLabel>
         </div>
-        <div className="ve-rev mt-1 text-center">
+        <div className="rv mt-1 text-center">
           <SectionTitle>The Venue</SectionTitle>
         </div>
-        <div className="ve-rev">
+        <div className="rv">
           <GoldDivider />
         </div>
 
-        <div className="ve-rev card-light overflow-hidden">
-          <div className="aspect-video w-full">
+        <div className="rv card-light overflow-hidden">
+          <div className="venue-map aspect-video w-full">
             <iframe
               src={wedding.venue.mapEmbed}
               title={`Map of ${wedding.venue.name}`}
@@ -59,14 +51,18 @@ export function VenueExperience() {
             />
           </div>
 
-          <div className="relative px-7 py-8 text-center sm:px-10">
-            <h3 className="font-display text-2xl font-semibold text-forest sm:text-3xl">
+          <div className="relative px-5 py-7 text-center sm:px-10 sm:py-9">
+            <h3 className="font-display text-xl font-semibold text-forest sm:text-3xl">
               {wedding.venue.name}
             </h3>
-            <p className="mt-2 text-sm text-gold">{wedding.venue.landmark}</p>
-            <p className="mt-1 text-sm text-forest/70">{wedding.venue.address}</p>
+            <p className="mt-2 text-[0.82rem] text-gold-deep sm:text-sm">
+              {wedding.venue.landmark}
+            </p>
+            <p className="mx-auto mt-1 max-w-sm text-[0.82rem] leading-relaxed text-forest/80 sm:text-sm">
+              {wedding.venue.address}
+            </p>
 
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
               <a
                 href={wedding.venue.directionsUrl}
                 target="_blank"

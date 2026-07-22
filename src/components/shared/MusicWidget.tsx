@@ -14,13 +14,13 @@ export function MusicWidget() {
       aria-label={isMuted ? "Unmute music" : "Mute music"}
     >
       <span className={`music-dot ${isPlaying && !isMuted ? "playing" : ""}`} aria-hidden />
-      <span className="font-display text-[0.65rem] tracking-[0.2em] uppercase text-gold-soft">
+      <span className="font-display text-[0.65rem] tracking-[0.2em] uppercase text-gold-deep">
         {isMuted ? "Muted" : "Music"}
       </span>
       {isMuted ? (
-        <HiOutlineSpeakerXMark size={14} className="text-gold-soft" aria-hidden />
+        <HiOutlineSpeakerXMark size={14} className="text-gold-deep" aria-hidden />
       ) : (
-        <HiOutlineSpeakerWave size={14} className="text-gold-soft" aria-hidden />
+        <HiOutlineSpeakerWave size={14} className="text-gold-deep" aria-hidden />
       )}
     </button>
   );

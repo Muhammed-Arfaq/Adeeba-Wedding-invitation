@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP, prefersReducedMotion, REVEAL } from "@/lib/gsap";
 import { wedding } from "@/config/wedding";
 import {
   GoldDivider,
@@ -29,16 +29,23 @@ function Cell({ value, label }: { value: number | null; label: string }) {
     if (value === prevRef.current) return;
     prevRef.current = value;
     if (!numRef.current) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersReducedMotion()) return;
+    /* Reads as a flip-clock card turning over rather than a number swap. */
     gsap.fromTo(
       numRef.current,
-      { yPercent: -55, opacity: 0 },
-      { yPercent: 0, opacity: 1, duration: 0.5, ease: "power3.out" },
+      { yPercent: -58, opacity: 0, filter: "blur(4px)" },
+      {
+        yPercent: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 0.5,
+        ease: "power3.out",
+      },
     );
   }, [value]);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="cnt-cell flex flex-col items-center">
       <div className="count-cell">
         <span ref={numRef} className="count-cell__num">
           {String(value ?? 0).padStart(2, "0")}
@@ -63,22 +70,30 @@ export function CountdownSection() {
 
   useGSAP(
     () => {
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduced) {
-        gsap.set(".cd-rev", { opacity: 1, y: 0 });
+      if (prefersReducedMotion()) {
+        gsap.set(".rv", { opacity: 1, y: 0, filter: "none" });
+        gsap.set(".cnt-cell", { opacity: 1, y: 0, scale: 1 });
         return;
       }
 
+      gsap.fromTo(".rv", REVEAL.from, {
+        ...REVEAL.to,
+        stagger: REVEAL.stagger,
+        scrollTrigger: { trigger: rootRef.current, start: REVEAL.start },
+      });
+
       gsap.fromTo(
-        ".cd-rev",
-        { opacity: 0, y: 40 },
+        ".cnt-cell",
+        { opacity: 0, y: 26, scale: 0.94 },
         {
           opacity: 1,
           y: 0,
-          stagger: 0.14,
-          duration: 0.85,
-          ease: "power2.out",
-          scrollTrigger: { trigger: rootRef.current, start: "top 76%" },
+          scale: 1,
+          duration: 0.65,
+          ease: "power3.out",
+          stagger: 0.07,
+          delay: 0.3,
+          scrollTrigger: { trigger: rootRef.current, start: "top 74%" },
         },
       );
     },
@@ -90,30 +105,30 @@ export function CountdownSection() {
       ref={rootRef}
       id="countdown"
       aria-label="Countdown to the wedding"
-      className="pat-dark seam-top px-5 py-20 sm:px-8 sm:py-28"
+      className="pat-mint seam-top section-pad"
     >
       <div className="mx-auto max-w-2xl">
-        <div className="cd-rev text-center">
+        <div className="rv text-center">
           <SectionLabel>Mark Your Calendar</SectionLabel>
         </div>
-        <div className="cd-rev mt-1 text-center">
-          <SectionTitle light>Counting the Moments</SectionTitle>
+        <div className="rv mt-1 text-center">
+          <SectionTitle>Counting the Moments</SectionTitle>
         </div>
-        <div className="cd-rev">
-          <ArchOrnament light />
+        <div className="rv">
+          <ArchOrnament />
         </div>
 
-        <div className="cd-rev grid grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-4 gap-2 sm:gap-4">
           <Cell value={t?.d ?? null} label="Days" />
           <Cell value={t?.h ?? null} label="Hours" />
           <Cell value={t?.m ?? null} label="Minutes" />
           <Cell value={t?.s ?? null} label="Seconds" />
         </div>
 
-        <div className="cd-rev">
+        <div className="rv">
           <GoldDivider />
         </div>
-        <p className="cd-rev text-center font-display text-base text-gold-soft">
+        <p className="rv text-center font-display text-sm text-gold-deep sm:text-base">
           {wedding.weddingDateLabel} &nbsp;·&nbsp; {wedding.weddingTimeLabel}
         </p>
       </div>

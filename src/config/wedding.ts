@@ -4,7 +4,7 @@ export const wedding = {
   meta: {
     title: "Adeeba & Ansar — Wedding Invitation",
     description:
-      "With gratitude to Allah, join us for the nikah of Adv. Adeeba Ameen and Ansar KP at Nushais Palace, Ponnani, on Thursday, 20 August 2026.",
+      "With gratitude to Allah, join us for the nikah of Adv. Adeeba Ameen and Ansar KP at Nufayyis Palace, Ponnani, on Thursday, 20 August 2026.",
     ogTitle: "Adeeba & Ansar — Wedding Invitation",
     ogDescription:
       "You are cordially invited to celebrate the nikah of Adv. Adeeba Ameen and Ansar KP.",
@@ -118,14 +118,14 @@ export const wedding = {
   thankYou: "Thank you for sharing in our joy.",
 
   venue: {
-    name: "Nushais Palace",
+    name: "Nufayyis Palace",
     location: "Ponnani, Malappuram",
     landmark: "Near Anappadi Petrol Pump",
-    address: "Nushais Palace, Near Anappadi Petrol Pump, Ponnani, Malappuram, Kerala",
-    mapEmbed: "https://www.google.com/maps?q=Nushais+Palace+Ponnani+Malappuram&output=embed",
+    address: "Nufayyis Palace, Near Anappadi Petrol Pump, Ponnani, Malappuram, Kerala",
+    mapEmbed: "https://www.google.com/maps?q=Nufayyis+Palace+Ponnani+Malappuram&output=embed",
     directionsUrl:
-      "https://www.google.com/maps/dir/?api=1&destination=Nushais+Palace+Ponnani+Malappuram",
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Nushais+Palace+Ponnani+Malappuram",
+      "https://www.google.com/maps/dir/?api=1&destination=Nufayyis+Palace+Ponnani+Malappuram",
+    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Nufayyis+Palace+Ponnani+Malappuram",
   },
 
   /** Signed at the foot of the card — "With love," */
@@ -135,12 +135,6 @@ export const wedding = {
     house: "Anthurayil House",
     location: "Puthuponnani (P.O.), Ponnani South",
     phone: "+91 95444 84103",
-  },
-
-  /** "With regards" — the family members extending the invitation */
-  wellWishers: {
-    label: "With regards",
-    names: ["Muhammed Ameen", "Rashida", "Muhammed Shamshan Nizami", "Shameer", "Athifa"],
   },
 
   music: {

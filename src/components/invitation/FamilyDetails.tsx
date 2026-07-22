@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP, prefersReducedMotion, REVEAL } from "@/lib/gsap";
 import { wedding } from "@/config/wedding";
 import { SectionLabel, SectionTitle, ArchOrnament } from "@/components/shared/GoldDivider";
 
@@ -18,25 +18,31 @@ function PersonCard({ person, dir }: { person: Person; dir: "left" | "right" }) 
   const isBride = person.role === "Bride";
 
   return (
-    <article className={`fd-card-${dir}`}>
-      <div className="card-dark person-card text-center">
+    <article className={`h-full ${dir === "left" ? "rv-l" : "rv-r"}`}>
+      <div className="card-mint person-card flex flex-col text-center">
         <div className="person-card__crest" aria-hidden>
           {person.shortName.charAt(0)}
         </div>
 
-        <p className="mt-4 text-[0.62rem] tracking-[0.38em] uppercase text-gold">{person.role}</p>
-        <h3 className="mt-2 font-display text-2xl font-semibold text-cream sm:text-3xl">
+        <p className="mt-3.5 text-[0.56rem] tracking-[0.3em] uppercase text-gold-deep sm:mt-4 sm:text-[0.62rem] sm:tracking-[0.38em]">
+          {person.role}
+        </p>
+        <h3 className="mt-1.5 font-display text-xl font-semibold text-forest sm:mt-2 sm:text-3xl">
           {person.name}
         </h3>
 
-        <div className="mt-7 text-left">
+        <div className="mt-6 text-left sm:mt-7">
           <Row label={isBride ? "Daughter of" : "Son of"}>
-            <p className="font-display text-base text-cream/90">{person.parents.father}</p>
-            <p className="font-display text-base text-cream/90">&amp; {person.parents.mother}</p>
+            <p className="font-display text-sm text-forest/90 sm:text-base">
+              {person.parents.father}
+            </p>
+            <p className="font-display text-sm text-forest/90 sm:text-base">
+              &amp; {person.parents.mother}
+            </p>
           </Row>
 
           <Row label="Residence">
-            <p className="text-sm leading-relaxed text-cream/80">
+            <p className="text-[0.82rem] leading-relaxed text-forest/80 sm:text-sm">
               {person.residence.house}
               <br />
               {person.residence.location}
@@ -45,7 +51,10 @@ function PersonCard({ person, dir }: { person: Person; dir: "left" | "right" }) 
 
           <Row label={isBride ? "Granddaughter of" : "Grandson of"}>
             {person.grandparents.map((pair) => (
-              <p key={pair.first} className="text-sm leading-relaxed text-cream/80">
+              <p
+                key={pair.first}
+                className="text-[0.82rem] leading-relaxed text-forest/80 sm:text-sm"
+              >
                 {pair.first} &amp; {pair.second}
               </p>
             ))}
@@ -61,50 +70,34 @@ export function FamilyDetails() {
 
   useGSAP(
     () => {
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const reset = (sel: string) => gsap.set(sel, { opacity: 1, x: 0, y: 0 });
-      if (reduced) {
-        reset(".fd-head");
-        reset(".fd-card-left");
-        reset(".fd-card-right");
+      if (prefersReducedMotion()) {
+        gsap.set(".rv, .rv-l, .rv-r", { opacity: 1, x: 0, y: 0, filter: "none" });
         return;
       }
 
-      gsap.fromTo(
-        ".fd-head",
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          stagger: 0.15,
-          duration: 0.85,
-          ease: "power2.out",
-          scrollTrigger: { trigger: rootRef.current, start: "top 78%" },
-        },
-      );
+      gsap.fromTo(".rv", REVEAL.from, {
+        ...REVEAL.to,
+        stagger: REVEAL.stagger,
+        scrollTrigger: { trigger: rootRef.current, start: REVEAL.start },
+      });
 
-      /* bride's card enters from the left, groom's from the right */
+      /* The bride's card enters from the left, the groom's from the right —
+         they meet in the middle, which is the whole point of the section. */
       gsap.fromTo(
-        ".fd-card-left",
-        { opacity: 0, x: -60 },
+        ".rv-l, .rv-r",
+        {
+          opacity: 0,
+          x: (i: number) => (i === 0 ? -56 : 56),
+          filter: "blur(8px)",
+        },
         {
           opacity: 1,
           x: 0,
-          duration: 1,
+          filter: "blur(0px)",
+          duration: 1.1,
           ease: "power3.out",
-          scrollTrigger: { trigger: rootRef.current, start: "top 72%" },
-        },
-      );
-
-      gsap.fromTo(
-        ".fd-card-right",
-        { opacity: 0, x: 60 },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 1,
-          ease: "power3.out",
-          scrollTrigger: { trigger: rootRef.current, start: "top 72%" },
+          stagger: 0.12,
+          scrollTrigger: { trigger: rootRef.current, start: "top 76%" },
         },
       );
     },
@@ -116,22 +109,29 @@ export function FamilyDetails() {
       ref={rootRef}
       id="families"
       aria-label="The families"
-      className="pat-dark seam-top px-5 py-20 sm:px-8 sm:py-28"
+      className="pat-mint seam-top section-pad"
     >
       <div className="mx-auto max-w-4xl">
-        <div className="fd-head text-center">
+        <div className="rv text-center">
           <SectionLabel>Our Families</SectionLabel>
         </div>
-        <div className="fd-head mt-1 text-center">
-          <SectionTitle light>Bride &amp; Groom</SectionTitle>
+        <div className="rv mt-1 text-center">
+          <SectionTitle>Bride &amp; Groom</SectionTitle>
         </div>
-        <div className="fd-head">
-          <ArchOrnament light />
+        <div className="rv">
+          <ArchOrnament />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid items-stretch gap-5 md:grid-cols-2 md:gap-6">
           <PersonCard person={wedding.bride} dir="left" />
           <PersonCard person={wedding.groom} dir="right" />
+        </div>
+
+        {/* Joins the two households on wide screens */}
+        <div className="rv family-link" aria-hidden>
+          <span className="family-link__line" />
+          <span className="orn-star">✦</span>
+          <span className="family-link__line" />
         </div>
       </div>
     </section>

@@ -5,32 +5,26 @@ export function GoldDivider({ className = "" }: { className?: string }) {
     <div className={`orn-divider ${className}`} aria-hidden>
       <span className="orn-line" />
       <span className="orn-star">✦</span>
-      <span className="orn-line rev" />
+      {/* `orn-line--rev`, not `rev` — `.rev` used to collide with the
+          scroll-reveal class and left this half permanently invisible. */}
+      <span className="orn-line orn-line--rev" />
     </div>
   );
 }
 
+/** Gold eyebrow above a section title. Every band is light now, so gold
+    text always needs the deeper shade to clear 4.5:1. */
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <p className="text-center text-xs font-semibold tracking-[0.42em] uppercase text-gold">
+    <p className="text-center text-[0.62rem] font-semibold tracking-[0.3em] uppercase text-gold-deep sm:text-xs sm:tracking-[0.42em]">
       {children}
     </p>
   );
 }
 
-export function SectionTitle({
-  children,
-  light = false,
-}: {
-  children: ReactNode;
-  light?: boolean;
-}) {
+export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2
-      className={`mt-2 text-center font-display text-3xl font-semibold sm:text-4xl ${
-        light ? "text-cream" : "text-forest"
-      }`}
-    >
+    <h2 className="mt-2 text-center font-display text-2xl font-semibold text-forest sm:text-4xl">
       {children}
     </h2>
   );
@@ -40,35 +34,52 @@ export function SectionTitle({
 export function RuledLabel({ children }: { children: ReactNode }) {
   return (
     <div className="flex items-center justify-center gap-3">
-      <span className="h-px w-10 bg-linear-to-r from-transparent to-[rgba(201,168,76,0.6)]" />
-      <span className="text-[0.6rem] font-semibold tracking-[0.36em] uppercase text-gold">
+      <span className="h-px w-10 bg-linear-to-r from-transparent to-[rgba(201,169,97,0.7)]" />
+      <span className="text-[0.6rem] font-semibold tracking-[0.36em] uppercase text-gold-deep">
         {children}
       </span>
-      <span className="h-px w-10 bg-linear-to-l from-transparent to-[rgba(201,168,76,0.6)]" />
+      <span className="h-px w-10 bg-linear-to-l from-transparent to-[rgba(201,169,97,0.7)]" />
     </div>
   );
 }
 
-export function ArchOrnament({ light = false }: { light?: boolean }) {
+export function ArchOrnament() {
+  const gold = "#96793a";
+  const faint = "#c9a961";
+
   return (
     <div className="arch-ornament" aria-hidden>
-      <svg viewBox="0 0 200 56" className="w-40 sm:w-52" fill="none">
+      <svg viewBox="0 0 220 58" className="w-32 sm:w-52" fill="none">
+        {/* Sweeping arcs. The apex of the outer arc lands at y=34, so the
+            medallion below sits *on* the line rather than floating over it. */}
+        <path d="M22 52 Q110 16 198 52" stroke={gold} strokeWidth="1.2" strokeLinecap="round" />
         <path
-          d="M10 50 Q100 4 190 50"
-          stroke={light ? "#e6cf9a" : "#c9a84c"}
-          strokeWidth="1.2"
-          strokeLinecap="round"
-        />
-        <path
-          d="M28 50 Q100 14 172 50"
-          stroke={light ? "#e6cf9a" : "#c9a84c"}
+          d="M50 52 Q110 30 170 52"
+          stroke={faint}
           strokeWidth="0.7"
           strokeLinecap="round"
           opacity="0.5"
         />
-        <circle cx="100" cy="8" r="3" fill={light ? "#e6cf9a" : "#c9a84c"} />
-        <circle cx="10" cy="50" r="2" fill={light ? "#e6cf9a" : "#c9a84c"} opacity="0.6" />
-        <circle cx="190" cy="50" r="2" fill={light ? "#e6cf9a" : "#c9a84c"} opacity="0.6" />
+        {/* Centre medallion — an eight-point star, echoing the background tile,
+            seated as a finial at the crown of the arc. */}
+        <g transform="translate(110 26)">
+          <rect x="-6.5" y="-6.5" width="13" height="13" stroke={gold} strokeWidth="1" />
+          <rect
+            x="-6.5"
+            y="-6.5"
+            width="13"
+            height="13"
+            stroke={gold}
+            strokeWidth="1"
+            transform="rotate(45)"
+          />
+          <circle r="2" fill={gold} />
+        </g>
+        {/* terminal beads */}
+        <circle cx="22" cy="52" r="2.5" fill={gold} opacity="0.75" />
+        <circle cx="198" cy="52" r="2.5" fill={gold} opacity="0.75" />
+        <circle cx="66" cy="38" r="1.4" fill={faint} opacity="0.5" />
+        <circle cx="154" cy="38" r="1.4" fill={faint} opacity="0.5" />
       </svg>
     </div>
   );

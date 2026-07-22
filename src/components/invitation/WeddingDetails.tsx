@@ -1,5 +1,5 @@
 import { useRef, type ReactNode } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP, prefersReducedMotion, REVEAL } from "@/lib/gsap";
 import { wedding } from "@/config/wedding";
 import { googleCalendarUrl } from "@/lib/calendar";
 import { ArchOrnament, SectionLabel, SectionTitle } from "@/components/shared/GoldDivider";
@@ -22,7 +22,7 @@ function DetailCell({
   featured?: boolean;
 }) {
   return (
-    <div className={`detail-cell ${featured ? "detail-cell--featured" : ""}`}>
+    <div className={`dt-cell detail-cell ${featured ? "detail-cell--featured" : ""}`}>
       <div className="detail-cell__icon" aria-hidden>
         {icon}
       </div>
@@ -39,22 +39,31 @@ export function WeddingDetails() {
 
   useGSAP(
     () => {
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduced) {
-        gsap.set(".wd-rev", { opacity: 1, y: 0 });
+      if (prefersReducedMotion()) {
+        gsap.set(".rv", { opacity: 1, y: 0, filter: "none" });
+        gsap.set(".dt-cell", { opacity: 1, y: 0 });
         return;
       }
 
+      gsap.fromTo(".rv", REVEAL.from, {
+        ...REVEAL.to,
+        stagger: REVEAL.stagger,
+        scrollTrigger: { trigger: rootRef.current, start: REVEAL.start },
+      });
+
+      /* The cells stagger in after the panel itself has landed. */
       gsap.fromTo(
-        ".wd-rev",
-        { opacity: 0, y: 44 },
+        ".dt-cell",
+        { opacity: 0, y: 22, scale: 0.97 },
         {
           opacity: 1,
           y: 0,
-          stagger: 0.14,
-          duration: 0.85,
-          ease: "power2.out",
-          scrollTrigger: { trigger: rootRef.current, start: "top 76%" },
+          scale: 1,
+          duration: 0.6,
+          ease: "power3.out",
+          stagger: 0.08,
+          delay: 0.35,
+          scrollTrigger: { trigger: rootRef.current, start: "top 70%" },
         },
       );
     },
@@ -66,20 +75,20 @@ export function WeddingDetails() {
       ref={rootRef}
       id="details"
       aria-label="Wedding details"
-      className="pat-light seam-top px-5 py-20 sm:px-8 sm:py-28"
+      className="pat-light seam-top section-pad"
     >
       <div className="mx-auto max-w-3xl">
-        <div className="wd-rev text-center">
+        <div className="rv text-center">
           <SectionLabel>The Celebration</SectionLabel>
         </div>
-        <div className="wd-rev mt-1 text-center">
+        <div className="rv mt-1 text-center">
           <SectionTitle>{wedding.ceremonyName} Details</SectionTitle>
         </div>
-        <div className="wd-rev">
+        <div className="rv">
           <ArchOrnament />
         </div>
 
-        <div className="wd-rev details-panel">
+        <div className="rv details-panel">
           {/* Corner ornaments */}
           <span className="details-corner details-corner--tl" aria-hidden />
           <span className="details-corner details-corner--tr" aria-hidden />
@@ -151,14 +160,14 @@ export function WeddingDetails() {
           </div>
         </div>
 
-        <div className="wd-rev mt-10 text-center">
-          <p className="font-arabic text-lg leading-loose text-forest sm:text-xl">
+        <div className="rv mt-8 text-center sm:mt-10">
+          <p className="font-arabic text-base leading-loose text-forest sm:text-xl">
             {wedding.quran.details.arabic}
           </p>
-          <p className="mt-3 font-display text-sm italic text-forest/75 sm:text-base">
+          <p className="mt-3 font-display text-[0.82rem] italic text-forest/80 sm:text-base">
             &ldquo;{wedding.quran.details.verse}&rdquo;
           </p>
-          <p className="mt-2 text-[0.65rem] tracking-[0.32em] uppercase text-gold">
+          <p className="mt-2 text-[0.58rem] tracking-[0.24em] uppercase text-gold-deep sm:text-[0.65rem] sm:tracking-[0.32em]">
             — {wedding.quran.details.reference}
           </p>
         </div>

@@ -19,16 +19,11 @@ export function Emblem786({ className = "" }: { className?: string }) {
 }
 
 /** Interlocking initials used on the seal and in the finale. */
-export function Monogram({ light = false }: { light?: boolean }) {
+export function Monogram() {
   const { left, right } = wedding.monogram;
   return (
-    <span
-      className={`font-display text-lg font-semibold tracking-[0.25em] ${
-        light ? "text-gold-soft" : "text-forest"
-      }`}
-      aria-hidden
-    >
-      {left} <span className="text-gold">✦</span> {right}
+    <span className="font-display text-lg font-semibold tracking-[0.25em] text-forest" aria-hidden>
+      {left} <span className="text-gold-deep">✦</span> {right}
     </span>
   );
 }

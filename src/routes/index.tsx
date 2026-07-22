@@ -29,8 +29,14 @@ function Index() {
   return (
     <MusicProvider>
       <ScrollProgress />
+      {/* One continuous marble slab behind every band. Fixed rather than a
+          per-section background so the stone reads as a single surface the
+          content slides over, instead of the same 1024px tile restarting in
+          each section. Lenis scrolls the window and applies no wrapper
+          transform, so `position: fixed` stays put. */}
+      <div className="page-marble" aria-hidden />
       <SmoothScroll>
-        <main className="overflow-x-hidden">
+        <main className="relative z-10 overflow-x-hidden">
           <InvitationCover />
           <WelcomeMessage />
           <FamilyDetails />

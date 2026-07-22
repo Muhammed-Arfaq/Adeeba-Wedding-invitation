@@ -61,16 +61,32 @@ Things that must move together:
 
 Each section is a self-contained `<section id="…">` that:
 1. Reads its copy from `wedding`.
-2. Registers its own GSAP reveal in `useGSAP(..., { scope: rootRef })`, animating a section-scoped class (`.wm-rev`, `.fd-card-left`, etc.) via a `ScrollTrigger` on `rootRef`.
-3. **Early-returns a `gsap.set(..., { opacity: 1, y: 0 })` when `prefers-reduced-motion` matches** — every animated component does this, and new ones must too, since the reveal classes start at `opacity: 0`.
+2. Registers its own GSAP reveal in `useGSAP(..., { scope: rootRef })`, animating the shared `.rv` class via a `ScrollTrigger` on `rootRef`. Use the `REVEAL` preset from [src/lib/gsap.ts](src/lib/gsap.ts) (`REVEAL.from` / `REVEAL.to` / `.stagger` / `.start`) so every band moves with one voice. `.rv-l` / `.rv-r` are the directional variants, used only by the two family cards.
+3. **Early-returns a `gsap.set(".rv", { opacity: 1, y: 0, filter: "none" })` when `prefersReducedMotion()` returns true** — every animated component does this, and new ones must too, since `.rv` starts at `opacity: 0`.
 
 Follow [WelcomeMessage.tsx](src/components/invitation/WelcomeMessage.tsx) as the template for a new section.
+
+### The reveal pre-hide
+
+`.rv` is only hidden when `<html>` carries `motion-ready`, which [src/lib/gsap.ts](src/lib/gsap.ts) adds at module scope. That ordering matters in both directions: the class lands before hydration paints (so nothing flashes in then animates out), and if JS never runs the class never appears, so every section renders fully visible instead of a blank page. The `prefers-reduced-motion` block re-shows `.rv` too, as a second belt-and-braces guard. Don't move that `classList.add` into a component effect — it would run after first paint and reintroduce the flash.
+
+A GSAP tween whose `from` sets a class to `opacity: 0` must be a `fromTo` (its `immediateRender: true` is what keeps children of a revealing panel — `.dt-cell`, `.cnt-cell`, `.fb-wisher` — from flashing before their delayed tween starts).
 
 Light and dark sections alternate (`pat-light` / `pat-dark`), each carrying `seam-top` for the hairline gold rule at the boundary.
 
 ### Motion
 
-- Always import GSAP from [src/lib/gsap.ts](src/lib/gsap.ts), never from `gsap` directly — that module is what registers `useGSAP`, `ScrollTrigger`, and `Flip`. `index.tsx` side-effect-imports it to guarantee registration order.
+- Always import GSAP from [src/lib/gsap.ts](src/lib/gsap.ts), never from `gsap` directly — that module is what registers `useGSAP`, `ScrollTrigger`, and `Flip`, exports the shared `REVEAL` preset and `prefersReducedMotion()`, and sets the `motion-ready` class. `index.tsx` side-effect-imports it to guarantee registration order.
+- The curtain in [InvitationCover.tsx](src/components/invitation/InvitationCover.tsx) is one GSAP timeline of seven labelled beats. The detail that makes it read as cloth rather than two sliding panels is beat 5: each `.curtain-fabric` scales toward its outer edge *while* its half translates away, so the pleats gather. Both are transform-only. The timeline `display: none`s `.curtain-stage` on complete, since offstage drapes are pure overdraw.
+- The drapes are pale sage silk. Their pleats are **one irregular multi-stop gradient, not `repeating-linear-gradient`** — evenly spaced folds are the single biggest tell that a CSS curtain is fake. The right panel is mirrored by reversing that gradient's direction. Do not mirror it with `scale: -1 1`: with `transform-origin: right center` that flips the panel clean outside its own `overflow: hidden` (the right half vanishes entirely), and it fights the `scaleX` GSAP writes during the draw.
+
+### Hero background
+
+`.hero-bg` is the reference marble at `background-size: cover`. Because the image is light and its sage veining is locally dark, the invitation sits on `.hero-frame` — a frosted white panel — with `.hero-scrim` lifting the marble underneath. That pairing is what keeps ink text legible wherever the veining happens to fall; don't drop either and put text straight on the photo.
+
+The hero content is in **normal flow with `min-h-svh`**, not `absolute inset-0`. Pinned to exactly one viewport height, the card was clipped at the top on short/landscape viewports; this way the section grows and the page scrolls instead.
+
+`image.png` is a 1.5 MB PNG. It is the largest asset on the site by far and is in the critical path for first paint — worth converting to WebP/AVIF at ~1600px if load time matters.
 - [SmoothScroll.tsx](src/components/shared/SmoothScroll.tsx) drives Lenis and pipes `lenis.on("scroll", ScrollTrigger.update)`. It no-ops entirely under reduced motion. Cross-section navigation uses its exported `scrollToSection(id)`.
 
 ### SSR-sensitive components
@@ -87,16 +103,44 @@ Tailwind v4, configured entirely in [src/styles.css](src/styles.css) (`@theme in
 
 | Group | Classes |
 | --- | --- |
-| Surfaces | `.pat-light`, `.pat-dark`, `.seam-top`, `.card-light`, `.card-dark` |
-| Hero | `.hero-scene`, `.hero-bg`, `.hero-vignette`, `.hero-frame`, `.corner-mark--*` |
-| Cover | `.curtain-*`, `.seal`, `.seal__halo`, `.emblem` |
-| Ornament | `.orn-*`, `.arch-ornament`, `.shimmer` / `.shimmer-light` |
-| Content | `.details-*`, `.detail-cell*`, `.person-card*`, `.count-cell*`, `.wisher`, `.signature` |
-| Controls | `.btn-gold`, `.btn-ghost`, `.btn-ghost-light`, `.music-pill`, `.scroll-progress` |
+| Layout | `.section-pad` (drives `--section-y` / `--section-x`), `.rv`, `.rv-l`, `.rv-r` |
+| Surfaces | `.page-marble`, `.pat-light`, `.pat-mint`, `.seam-top`, `.card-light`, `.card-mint` |
+| Hero | `.hero-scene`, `.hero-bg`, `.hero-aurora`, `.hero-scrim`, `.hero-vignette`, `.hero-frame`, `.corner-mark--*`, `.scroll-cue` |
+| Cover | `.curtain-stage`, `.curtain-valance`, `.curtain-half`, `.curtain-fabric`, `.curtain-sheen`, `.curtain-edge`, `.curtain-glow`, `.seal`, `.seal__halo`, `.emblem` |
+| Ornament | `.orn-*` (right-hand rule is `.orn-line--rev`), `.arch-ornament`, `.family-link`, `.shimmer` / `.shimmer-light` |
+| Content | `.details-*`, `.detail-cell*`, `.person-card*`, `.count-cell*`, `.venue-map`, `.wisher`, `.signature` |
+| Controls | `.btn-gold`, `.btn-ghost`, `.music-pill`, `.scroll-progress` |
 
-Palette: forest `#0c3620`, emerald `#0f5132`, ivory `#f6edd9`, cream `#fdf8f0`, gold `#c9a84c`. Token utilities (`text-gold`, `bg-forest`, `font-display`, `font-arabic`) come from `@theme`, so Tailwind opacity modifiers like `text-cream/70` work.
+### Palette
+
+**Every colour is sampled from [public/images/image.png](public/images/image.png)** — the mint-and-gold alcohol-ink marble that is also the hero background. `#f4f4ef` is the image's dominant tone (33% of its pixels) and anchors everything. Re-sample that file rather than inventing new values.
+
+Neutrals: porcelain `#fbfbf8`, alabaster `#f4f4ef`, mist `#eaf1ea`. Sage ramp `--color-sage-50` `#e4ece4` → `--color-sage-700` `#35735b`. Ink `#22423a`. Gold `#c9a961`, deep gold `#96793a`.
+
+`--color-forest` is kept as an alias of ink purely so existing `text-forest/NN` opacity utilities keep resolving; it is no longer a green.
+
+### The marble slab
+
+`.page-marble` is a single `position: fixed` layer holding the reference image, mounted once in [index.tsx](src/routes/index.tsx) with `main` above it at `z-10`. Every band on top is a **translucent wash**, so the stone reads as one continuous surface the content slides over. Per-section backgrounds were the obvious alternative and look worse — the same 1024px tile visibly restarts in every section. `position: fixed` is safe here only because Lenis scrolls the window without a wrapper transform; if `SmoothScroll` ever moves to a transformed wrapper, this layer breaks.
+
+The wash opacities (~0.78 light, ~0.76 mint) are a **contrast budget, not a taste setting**. They are set as thin as the text allows: over the marble's darkest sage veining, ink at 80% opacity lands near 5:1. That is why body copy bottoms out at `text-forest/80` — dropping text opacity further, or thinning the wash, pushes small text under 4.5:1. Change the two together or not at all.
+
+**The page has no dark bands.** Both surfaces are light — `.pat-light` (warm alabaster) alternating with `.pat-mint` (mint wash). So:
+- Gold **text** is always `text-gold-deep` (`#96793a`, ~4.9:1). `text-gold` (`#c9a961`) is decoration only — as text on either band it fails WCAG.
+- `SectionLabel`, `SectionTitle`, `RuledLabel` and `ArchOrnament` no longer take a `light` prop; there is nothing dark for them to sit on.
+- `text-gold-soft` and `.shimmer-light` are pale variants left over for use on a dark surface. Nothing uses them. Don't reach for them on a light band.
+
+Do not name a class `.rev` — that collided with the scroll-reveal class and left the right half of every `GoldDivider` permanently invisible.
 
 Arabic text uses `.font-arabic` (Scheherazade New, `direction: rtl`).
+
+### Mobile type scale
+
+Mobile gets its own smaller scale, set in two places that must stay in step:
+- **Component sizes** — the unprefixed Tailwind size is the mobile one, with `sm:` restoring the desktop size (`text-2xl sm:text-4xl`). Don't add a size without its `sm:` partner.
+- **CSS-defined sizes** — anything sized in `styles.css` (`.count-cell__num`, `.detail-cell__value`, `.btn-gold`, `.seal`, …) steps down in the `@media (max-width: 639px)` block near the foot of the file.
+
+Body copy bottoms out at ~13px (`text-[0.82rem]`); only display sizes and chrome go smaller. Resist scaling this by dropping the root `font-size` — Tailwind spacing is rem-based, so it would also shrink the 44px touch targets.
 
 Every animation added to `styles.css` needs a matching entry in the `prefers-reduced-motion` block at the bottom. `.shimmer` in particular must fall back to a solid colour there — it paints text with `color: transparent`, so a disabled animation without the fallback renders invisible text.
 
