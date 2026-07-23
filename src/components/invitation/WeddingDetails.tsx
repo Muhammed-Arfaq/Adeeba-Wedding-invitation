@@ -70,19 +70,21 @@ export function WeddingDetails() {
     { scope: rootRef },
   );
 
+  /* pat-mid, not pat-light: the panel above (Welcome) is pat-light, and the
+     deck's kraft ↔ black rhythm needs the tone to step at every boundary. */
   return (
     <section
       ref={rootRef}
       id="details"
       aria-label="Wedding details"
-      className="panel pat-light paper-grain section-pad"
+      className="panel pat-mid paper-grain section-pad"
     >
       <div className="mx-auto max-w-3xl">
         <div className="rv text-center">
           <SectionLabel>The Celebration</SectionLabel>
         </div>
         <div className="rv mt-1 text-center">
-          <SectionTitle>{wedding.ceremonyName} Details</SectionTitle>
+          <SectionTitle>{wedding.ceremonyName}</SectionTitle>
         </div>
         <div className="rv">
           <ArchOrnament />
@@ -98,8 +100,8 @@ export function WeddingDetails() {
           {/* Couple showcase */}
           <div className="details-couple">
             <div className="details-couple__person">
-              <p className="details-couple__role">{wedding.bride.role}</p>
-              <p className="details-couple__name">{wedding.bride.name}</p>
+              <p className="details-couple__role">{wedding.groom.role}</p>
+              <p className="details-couple__name">{wedding.groom.name}</p>
             </div>
 
             <div className="details-couple__divider" aria-hidden>
@@ -109,8 +111,8 @@ export function WeddingDetails() {
             </div>
 
             <div className="details-couple__person">
-              <p className="details-couple__role">{wedding.groom.role}</p>
-              <p className="details-couple__name">{wedding.groom.name}</p>
+              <p className="details-couple__role">{wedding.bride.role}</p>
+              <p className="details-couple__name">{wedding.bride.name}</p>
             </div>
           </div>
 
@@ -127,7 +129,7 @@ export function WeddingDetails() {
             <DetailCell
               featured
               icon={<HiOutlineClock size={22} />}
-              label={wedding.ceremonyName}
+              label="Time"
               value={wedding.weddingTimeLabel}
             />
           </div>
@@ -143,8 +145,8 @@ export function WeddingDetails() {
             />
             <DetailCell
               icon={<HiOutlineMapPin size={20} />}
-              label="Landmark"
-              value={wedding.venue.landmark}
+              label="Location"
+              value={wedding.venue.location}
             />
           </div>
 

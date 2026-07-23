@@ -287,11 +287,11 @@ export function EnvelopeCover() {
                 {wedding.cover.subtitle}
               </p>
               <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
-                {wedding.bride.shortName}
+                {wedding.groom.shortName}
               </p>
               <p className="font-arabic text-xs text-[#8a6a2a]">&amp;</p>
               <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
-                {wedding.groom.shortName}
+                {wedding.bride.shortName}
               </p>
               <span className="mt-0.5 block h-px w-8 bg-[rgba(120,90,29,0.45)]" />
               <p className="text-[0.44rem] tracking-[0.2em] uppercase text-[#6b5b42]">
@@ -345,11 +345,11 @@ export function EnvelopeCover() {
                 {wedding.cover.subtitle}
               </p>
               <p className="font-display text-lg font-semibold tracking-wide text-[#26231b]">
-                {wedding.bride.shortName}
+                {wedding.groom.shortName}
               </p>
               <p className="font-arabic text-sm text-[#8a6a2a]">&amp;</p>
               <p className="font-display text-lg font-semibold tracking-wide text-[#26231b]">
-                {wedding.groom.shortName}
+                {wedding.bride.shortName}
               </p>
               <span className="mt-1 block h-px w-10 bg-[rgba(120,90,29,0.45)]" />
               <p className="text-[0.5rem] tracking-[0.22em] uppercase text-[#6b5b42]">
@@ -416,7 +416,7 @@ export function EnvelopeCover() {
             </p>
 
             <h1 className="hero-line mt-4 font-display text-2xl font-semibold tracking-wider text-[#26231b] sm:mt-5 sm:text-4xl">
-              {wedding.bride.displayName}
+              {wedding.groom.displayName}
             </h1>
             <p
               className="hero-line my-1.5 font-arabic text-xl text-gold-deep sm:my-2 sm:text-3xl"
@@ -425,7 +425,7 @@ export function EnvelopeCover() {
               &amp;
             </p>
             <h1 className="hero-line font-display text-2xl font-semibold tracking-wider text-[#26231b] sm:text-4xl">
-              {wedding.groom.displayName}
+              {wedding.bride.displayName}
             </h1>
 
             <GoldDivider className="hero-line" />

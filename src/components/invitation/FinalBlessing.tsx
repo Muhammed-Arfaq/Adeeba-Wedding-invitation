@@ -73,35 +73,14 @@ export function FinalBlessing() {
           With love &amp; duas
         </p>
         <p className="rv t-fg mt-3 font-display text-xl font-semibold sm:mt-4 sm:text-3xl">
-          {wedding.bride.shortName}
+          {wedding.groom.shortName}
         </p>
         <p className="rv t-accent my-1.5 font-arabic text-lg sm:my-2 sm:text-xl" aria-hidden>
           &amp;
         </p>
         <p className="rv t-fg font-display text-xl font-semibold sm:text-3xl">
-          {wedding.groom.shortName}
+          {wedding.bride.shortName}
         </p>
-
-        {/* Hosts — as signed at the foot of the card */}
-        <div className="rv signature mt-10 text-center sm:mt-12">
-          <p className="t-accent font-display text-sm italic sm:text-base">
-            {wedding.hosts.salutation}
-          </p>
-          <p className="t-fg mt-2.5 font-display text-base font-semibold sm:mt-3 sm:text-xl">
-            {wedding.hosts.names}
-          </p>
-          <p className="t-fg2 mt-2 text-[0.82rem] leading-relaxed sm:text-sm">
-            {wedding.hosts.house}
-            <br />
-            {wedding.hosts.location}
-          </p>
-          <a
-            href={`tel:${wedding.hosts.phone.replace(/\s/g, "")}`}
-            className="t-accent mt-3 inline-flex min-h-11 items-center text-[0.82rem] font-medium underline-offset-4 transition-colors hover:underline sm:mt-4 sm:text-sm"
-          >
-            {wedding.hosts.phone}
-          </a>
-        </div>
 
         {/* Quiet credit — an invitation to commission one */}
         <div className="rv mt-14 sm:mt-16">

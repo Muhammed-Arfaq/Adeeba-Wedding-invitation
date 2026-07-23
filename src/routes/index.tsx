@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { EnvelopeCover } from "@/components/invitation/EnvelopeCover";
 import { StackScroll } from "@/components/shared/StackScroll";
 import { WelcomeMessage } from "@/components/invitation/WelcomeMessage";
-import { FamilyDetails } from "@/components/invitation/FamilyDetails";
 import { WeddingDetails } from "@/components/invitation/WeddingDetails";
 import { CountdownSection } from "@/components/invitation/CountdownSection";
 import { VenueExperience } from "@/components/invitation/VenueExperience";
@@ -57,7 +56,6 @@ function Index() {
           <StackScroll>
             <EnvelopeCover />
             <WelcomeMessage />
-            <FamilyDetails />
             <WeddingDetails />
             <CountdownSection />
             <VenueExperience />

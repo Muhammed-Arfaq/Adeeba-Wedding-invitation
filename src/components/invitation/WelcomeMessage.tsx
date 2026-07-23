@@ -53,11 +53,11 @@ export function WelcomeMessage() {
           <span className="details-corner details-corner--bl" aria-hidden />
           <span className="details-corner details-corner--br" aria-hidden />
 
-          <p className="t-fg3 text-xs tracking-[0.16em] uppercase sm:text-sm sm:tracking-[0.2em]">
+          <p className="t-fg3 text-xs leading-relaxed tracking-[0.16em] uppercase sm:text-sm sm:tracking-[0.2em]">
             {wedding.announcement.lead}
           </p>
           <p className="mt-2.5 font-display text-2xl font-semibold leading-tight sm:mt-3 sm:text-4xl">
-            <span className="shimmer">{wedding.bride.name}</span>
+            <span className="shimmer">{wedding.groom.name}</span>
           </p>
 
           <div className="my-5 flex items-center justify-center gap-3 sm:my-6" aria-hidden>
@@ -69,7 +69,7 @@ export function WelcomeMessage() {
           </div>
 
           <p className="font-display text-2xl font-semibold leading-tight sm:text-4xl">
-            <span className="shimmer">{wedding.groom.name}</span>
+            <span className="shimmer">{wedding.bride.name}</span>
           </p>
         </div>
 

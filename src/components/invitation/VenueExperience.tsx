@@ -55,10 +55,7 @@ export function VenueExperience() {
             <h3 className="t-fg font-display text-xl font-semibold sm:text-3xl">
               {wedding.venue.name}
             </h3>
-            <p className="t-accent mt-2 text-[0.82rem] sm:text-sm">{wedding.venue.landmark}</p>
-            <p className="t-fg2 mx-auto mt-1 max-w-sm text-[0.82rem] leading-relaxed sm:text-sm">
-              {wedding.venue.address}
-            </p>
+            <p className="t-accent mt-2 text-[0.82rem] sm:text-sm">{wedding.venue.location}</p>
 
             <div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
               <a

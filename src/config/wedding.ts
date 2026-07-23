@@ -2,12 +2,12 @@
 
 export const wedding = {
   meta: {
-    title: "Adeeba & Ansar — Wedding Invitation",
+    title: "Shuhaib & Farha — Wedding Invitation",
     description:
-      "With gratitude to Allah, join us for the nikah of Adv. Adeeba Ameen and Ansar KP at Nufayyis Palace, Ponnani, on Thursday, 20 August 2026.",
-    ogTitle: "Adeeba & Ansar — Wedding Invitation",
+      "With the blessings of Allah, join us for the wedding ceremony of Shuhaib and Farha at Pookolathur Mahall Auditorium, Karaparambu Road, on Sunday, 26 July 2026.",
+    ogTitle: "Shuhaib & Farha — Wedding Invitation",
     ogDescription:
-      "You are cordially invited to celebrate the nikah of Adv. Adeeba Ameen and Ansar KP.",
+      "You are joyfully invited to celebrate the wedding ceremony of Shuhaib and Farha.",
   },
 
   /** The 786 emblem printed at the head of the card */
@@ -20,7 +20,7 @@ export const wedding = {
   greeting: "Dear Friend,",
 
   /** Monogram initials shown on the curtain seal and hero */
-  monogram: { left: "A", right: "A" },
+  monogram: { left: "S", right: "F" },
 
   blessing: {
     arabic: "بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",
@@ -33,50 +33,33 @@ export const wedding = {
     curtainPrompt: "Tap the seal to open",
   },
 
-  /** The bride's family are the hosts of this invitation. */
-  bride: {
-    name: "Adv. Adeeba Ameen",
-    displayName: "ADV. ADEEBA AMEEN",
-    shortName: "Adeeba",
-    role: "Bride",
-    parents: {
-      father: "Mr. Ahammed Ameen OM",
-      mother: "Mrs. Shabeena",
-    },
-    residence: {
-      house: "Anthurayil House",
-      location: "Puthuponnani (P.O.), Ponnani South",
-    },
-    grandparents: [
-      { first: "Mr. Moythu Moulavi A M", second: "Mrs. Fathima Hajjumma" },
-      { first: "Late Abbu Maningayil", second: "Ayishakutty Mangattu" },
-    ],
-  },
-
+  /* The printed card names the groom first, so the site does too — every
+     render site pairs groom then bride. */
   groom: {
-    name: "Ansar KP",
-    displayName: "ANSAR KP",
-    shortName: "Ansar",
+    name: "Shuhaib",
+    displayName: "SHUHAIB",
+    shortName: "Shuhaib",
     role: "Groom",
-    parents: {
-      father: "Mr. Moideen Kutty",
-      mother: "Mrs. Nabeesa",
-    },
-    residence: {
-      house: "Kunjilpeedikayil House",
-      location: "Kottappadam (P.O.), Koottanad",
-    },
-    grandparents: [
-      { first: "Moidunnikutty (Late)", second: "Zainaba (Late)" },
-      { first: "Moidu (Late)", second: "Safiya (Late)" },
-    ],
   },
 
-  /** ISO 8601 — drives the countdown. Keep the labels below in sync. */
-  weddingDate: "2026-08-20T11:00:00",
-  weddingDateLabel: "Thursday, 20 August 2026",
-  weddingTimeLabel: "11:00 AM",
-  ceremonyName: "Nikah",
+  bride: {
+    name: "Farha",
+    displayName: "FARHA",
+    shortName: "Farha",
+    role: "Bride",
+  },
+
+  /* ISO 8601 — drives the countdown and the calendar link. Keep the labels
+     below in sync. The +05:30 offset is load-bearing: without it the string is
+     parsed in whatever timezone the code happens to run in, which is the
+     browser's for the countdown and the *server's* for the calendar link — and
+     Netlify's servers are UTC, so the "Add to Calendar" button shipped an event
+     at 10:00 UTC (3:30 PM in Kerala). Pinning the offset makes both resolve to
+     the one instant the card means. */
+  weddingDate: "2026-07-26T10:00:00+05:30",
+  weddingDateLabel: "Sunday, 26 July 2026",
+  weddingTimeLabel: "10:00 AM",
+  ceremonyName: "Wedding Ceremony",
 
   quran: {
     /** Hero — after the curtain opens */
@@ -105,36 +88,27 @@ export const wedding = {
 
   /** Lead line on the welcome section — mirrors the printed card */
   announcement: {
-    lead: "Our daughter",
-    trailing: "is to be wed to",
+    lead: "With the blessings of Allah, we joyfully invite you to the wedding ceremony of",
+    trailing: "&",
   },
 
-  invitation:
-    "Nikah is the sacred bond by which Allah unites two hearts in what is pure and halal. Your presence at that blessed moment is what completes our joy — we await the loving company of you and your family.",
+  invitation: "Your presence and blessings will make this occasion even more special.",
 
-  closingNote:
-    "Your presence and duas would mean the world to us as we begin this blessed journey together.",
+  closingNote: "Kindly grace the occasion with your presence and duas.",
 
   thankYou: "Thank you for sharing in our joy.",
 
   venue: {
-    name: "Nufayyis Palace",
-    location: "Ponnani, Malappuram",
-    landmark: "Near Anappadi Petrol Pump",
-    address: "Nufayyis Palace, Near Anappadi Petrol Pump, Ponnani, Malappuram, Kerala",
-    mapEmbed: "https://www.google.com/maps?q=Nufayyis+Palace+Ponnani+Malappuram&output=embed",
+    name: "Pookolathur Mahall Auditorium",
+    location: "Karaparambu Road",
+    /** Not rendered — this is what the calendar entry carries. */
+    address: "Pookolathur Mahall Auditorium, Karaparambu Road, Kerala",
+    mapEmbed:
+      "https://www.google.com/maps?q=Pookolathur+Mahall+Auditorium+Karaparambu+Road+Kerala&output=embed",
     directionsUrl:
-      "https://www.google.com/maps/dir/?api=1&destination=Nufayyis+Palace+Ponnani+Malappuram",
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Nufayyis+Palace+Ponnani+Malappuram",
-  },
-
-  /** Signed at the foot of the card — "With love," */
-  hosts: {
-    salutation: "With love,",
-    names: "Mr. Ahammed Ameen OM & Mrs. Shabeena",
-    house: "Anthurayil House",
-    location: "Puthuponnani (P.O.), Ponnani South",
-    phone: "+91 95444 84103",
+      "https://www.google.com/maps/dir/?api=1&destination=Pookolathur+Mahall+Auditorium+Karaparambu+Road+Kerala",
+    mapsUrl:
+      "https://www.google.com/maps/search/?api=1&query=Pookolathur+Mahall+Auditorium+Karaparambu+Road+Kerala",
   },
 
   /** Foot of the finale — a quiet credit inviting others to commission one. */
