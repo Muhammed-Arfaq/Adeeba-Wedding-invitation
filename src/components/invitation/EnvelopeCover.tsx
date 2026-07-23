@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 import { wedding } from "@/config/wedding";
 import { useMusic } from "@/context/MusicContext";
@@ -6,6 +6,11 @@ import { scrollToSection, setScrollLocked } from "@/components/shared/SmoothScro
 import { Particles } from "@/components/shared/Particles";
 import { GoldDivider } from "@/components/shared/GoldDivider";
 import { Emblem786 } from "@/components/shared/Emblem";
+
+/* This component is server-rendered, and useLayoutEffect warns on the server.
+   The measurement below has to run before paint on the client, though, so pick
+   the right hook per environment rather than settling for a post-paint resize. */
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /** Interlocking rings, pressed into the wax. */
 function SealMark() {
@@ -52,20 +57,33 @@ export function EnvelopeCover() {
     return () => setScrollLocked(false);
   }, []);
 
-  /* Centre the envelope against the *actually visible* height. Mobile browsers'
-     svh/lvh/dvh units disagree with the real viewport while the URL bar shows,
-     which left the envelope off-centre on real phones; window.innerHeight is the
-     reliable number. Only the sealed cover reads --app-height, and scroll is
-     locked then, so the URL bar (and this value) can't shift underfoot. */
-  useEffect(() => {
-    const setH = () =>
-      document.documentElement.style.setProperty("--app-height", `${window.innerHeight}px`);
+  /* Measure the *actually visible* height for the envelope to centre in.
+     Mobile browsers size the layout viewport — and `window.innerHeight` and
+     `100svh` with it — to the URL-bar-hidden height, so both over-report while
+     the bar is showing; that surplus is what pushed the envelope low and the
+     "tap the seal" hint off the bottom of real phones. visualViewport.height is
+     the one value that tracks what the user can see, and taking the smaller of
+     the two keeps us honest if a browser reports it oddly.
+
+     This has to be a layout effect: the frame is sized from --app-height, and a
+     passive effect would size it after first paint. */
+  useIsomorphicLayoutEffect(() => {
+    const setH = () => {
+      /* Nothing reads --app-height once the envelope is gone, and after the
+         scroll lock lifts this would otherwise fire on every URL-bar toggle. */
+      if (openedRef.current) return;
+      const vv = window.visualViewport?.height;
+      const h = vv ? Math.min(vv, window.innerHeight) : window.innerHeight;
+      document.documentElement.style.setProperty("--app-height", `${Math.round(h)}px`);
+    };
     setH();
     window.addEventListener("resize", setH);
     window.addEventListener("orientationchange", setH);
+    window.visualViewport?.addEventListener("resize", setH);
     return () => {
       window.removeEventListener("resize", setH);
       window.removeEventListener("orientationchange", setH);
+      window.visualViewport?.removeEventListener("resize", setH);
     };
   }, []);
 
@@ -239,127 +257,133 @@ export function EnvelopeCover() {
       <div className="env-glow" aria-hidden />
       <Particles />
 
-      {/* ── The envelope, from the supplied artwork (phones) ──
+      {/* One visible viewport tall, starting at the scene's top edge — so
+          whichever envelope is on screen is centred by plain grid placement.
+          See .env-centre: the old computed `top` + `translate: -50% -50%` was
+          silently baked into stale pixels by GSAP. */}
+      <div className="env-centre">
+        {/* ── The envelope, from the supplied artwork (phones) ──
           Two keyed plates: kraft body, then the black flap carrying the wax.
           The flap hinges on its own right edge — x=884 of 941 in the source. */}
-      <div ref={photoRef} className="env-photo" aria-hidden={opened}>
-        {/* The sized, aspect-locked envelope. The hint below sits outside it so
+        <div ref={photoRef} className="env-photo" aria-hidden={opened}>
+          {/* The sized, aspect-locked envelope. The hint below sits outside it so
             the two centre together as one group. */}
-        <div className="env-photo__frame">
-          {/* WebP is ~92% smaller than the keyed PNG (327KB vs 4.2MB for the
+          <div className="env-photo__frame">
+            {/* WebP is ~92% smaller than the keyed PNG (327KB vs 4.2MB for the
               pair); the PNG stays as a fallback for pre-2020 browsers. */}
-          <picture>
-            <source srcSet="/images/envelope-body.webp" type="image/webp" />
-            <img
-              src="/images/envelope-body.png"
-              alt=""
-              className="env-photo__plate env-photo__body"
-              draggable={false}
-              fetchPriority="high"
-            />
-          </picture>
+            <picture>
+              <source srcSet="/images/envelope-body.webp" type="image/webp" />
+              <img
+                src="/images/envelope-body.png"
+                alt=""
+                className="env-photo__plate env-photo__body"
+                draggable={false}
+                fetchPriority="high"
+              />
+            </picture>
 
-          <div ref={photoPocketRef} className="env-photo__pocket">
-            <p className="text-[0.46rem] tracking-[0.28em] uppercase text-[#8a6a2a]">
-              {wedding.cover.subtitle}
-            </p>
-            <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
-              {wedding.bride.shortName}
-            </p>
-            <p className="font-arabic text-xs text-[#8a6a2a]">&amp;</p>
-            <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
-              {wedding.groom.shortName}
-            </p>
-            <span className="mt-0.5 block h-px w-8 bg-[rgba(120,90,29,0.45)]" />
-            <p className="text-[0.44rem] tracking-[0.2em] uppercase text-[#6b5b42]">
-              {wedding.weddingDateLabel}
-            </p>
+            <div ref={photoPocketRef} className="env-photo__pocket">
+              <p className="text-[0.46rem] tracking-[0.28em] uppercase text-[#8a6a2a]">
+                {wedding.cover.subtitle}
+              </p>
+              <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
+                {wedding.bride.shortName}
+              </p>
+              <p className="font-arabic text-xs text-[#8a6a2a]">&amp;</p>
+              <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
+                {wedding.groom.shortName}
+              </p>
+              <span className="mt-0.5 block h-px w-8 bg-[rgba(120,90,29,0.45)]" />
+              <p className="text-[0.44rem] tracking-[0.2em] uppercase text-[#6b5b42]">
+                {wedding.weddingDateLabel}
+              </p>
+            </div>
+
+            <picture>
+              <source srcSet="/images/envelope-flap.webp" type="image/webp" />
+              <img
+                ref={photoFlapRef}
+                src="/images/envelope-flap.png"
+                alt=""
+                className="env-photo__plate env-photo__flap"
+                draggable={false}
+                fetchPriority="high"
+              />
+            </picture>
+
+            <button
+              ref={photoSealRef}
+              type="button"
+              onClick={openEnvelope}
+              className="env-photo__seal"
+              aria-label="Open the invitation"
+              disabled={opened}
+            >
+              {!opened && (
+                <>
+                  <span className="env-photo__halo" aria-hidden />
+                  <span className="env-photo__halo" aria-hidden />
+                </>
+              )}
+            </button>
           </div>
 
-          <picture>
-            <source srcSet="/images/envelope-flap.webp" type="image/webp" />
-            <img
-              ref={photoFlapRef}
-              src="/images/envelope-flap.png"
-              alt=""
-              className="env-photo__plate env-photo__flap"
-              draggable={false}
-              fetchPriority="high"
-            />
-          </picture>
-
-          <button
-            ref={photoSealRef}
-            type="button"
-            onClick={openEnvelope}
-            className="env-photo__seal"
-            aria-label="Open the invitation"
-            disabled={opened}
-          >
-            {!opened && (
-              <>
-                <span className="env-photo__halo" aria-hidden />
-                <span className="env-photo__halo" aria-hidden />
-              </>
-            )}
-          </button>
-        </div>
-
-        <p className="env-hint env-photo__hint" aria-hidden>
-          {wedding.cover.curtainPrompt}
-        </p>
-      </div>
-
-      {/* ── The CSS envelope (tablet and up) ── */}
-      <div ref={stageRef} className="env-stage" aria-hidden={opened}>
-        <div className="envelope">
-          <div className="env-body" />
-          <span className="env-fold env-fold--left" aria-hidden />
-          <span className="env-fold env-fold--right" aria-hidden />
-
-          <div ref={letterRef} className="env-letter">
-            <p className="text-[0.5rem] tracking-[0.3em] uppercase text-[#8a6a2a]">
-              {wedding.cover.subtitle}
-            </p>
-            <p className="font-display text-lg font-semibold tracking-wide text-[#26231b]">
-              {wedding.bride.shortName}
-            </p>
-            <p className="font-arabic text-sm text-[#8a6a2a]">&amp;</p>
-            <p className="font-display text-lg font-semibold tracking-wide text-[#26231b]">
-              {wedding.groom.shortName}
-            </p>
-            <span className="mt-1 block h-px w-10 bg-[rgba(120,90,29,0.45)]" />
-            <p className="text-[0.5rem] tracking-[0.22em] uppercase text-[#6b5b42]">
-              {wedding.weddingDateLabel}
-            </p>
-          </div>
-
-          <span className="env-fold env-fold--bottom" aria-hidden />
-          <div ref={flapRef} className="env-flap">
-            <span className="env-flap__face env-flap__face--front" />
-            <span className="env-flap__face env-flap__face--back" />
-          </div>
-
-          <button
-            ref={sealRef}
-            type="button"
-            onClick={openEnvelope}
-            className="env-seal"
-            aria-label="Open the invitation"
-            disabled={opened}
-          >
-            {!opened && (
-              <>
-                <span className="env-halo" aria-hidden />
-                <span className="env-halo" aria-hidden />
-              </>
-            )}
-            <SealMark />
-          </button>
-
-          <p ref={hintRef} className="env-hint" aria-hidden>
+          <p className="env-hint env-photo__hint" aria-hidden>
             {wedding.cover.curtainPrompt}
           </p>
+        </div>
+
+        {/* ── The CSS envelope (tablet and up) ── */}
+        <div ref={stageRef} className="env-stage" aria-hidden={opened}>
+          <div className="envelope">
+            <div className="env-body" />
+            <span className="env-fold env-fold--left" aria-hidden />
+            <span className="env-fold env-fold--right" aria-hidden />
+
+            <div ref={letterRef} className="env-letter">
+              <p className="text-[0.5rem] tracking-[0.3em] uppercase text-[#8a6a2a]">
+                {wedding.cover.subtitle}
+              </p>
+              <p className="font-display text-lg font-semibold tracking-wide text-[#26231b]">
+                {wedding.bride.shortName}
+              </p>
+              <p className="font-arabic text-sm text-[#8a6a2a]">&amp;</p>
+              <p className="font-display text-lg font-semibold tracking-wide text-[#26231b]">
+                {wedding.groom.shortName}
+              </p>
+              <span className="mt-1 block h-px w-10 bg-[rgba(120,90,29,0.45)]" />
+              <p className="text-[0.5rem] tracking-[0.22em] uppercase text-[#6b5b42]">
+                {wedding.weddingDateLabel}
+              </p>
+            </div>
+
+            <span className="env-fold env-fold--bottom" aria-hidden />
+            <div ref={flapRef} className="env-flap">
+              <span className="env-flap__face env-flap__face--front" />
+              <span className="env-flap__face env-flap__face--back" />
+            </div>
+
+            <button
+              ref={sealRef}
+              type="button"
+              onClick={openEnvelope}
+              className="env-seal"
+              aria-label="Open the invitation"
+              disabled={opened}
+            >
+              {!opened && (
+                <>
+                  <span className="env-halo" aria-hidden />
+                  <span className="env-halo" aria-hidden />
+                </>
+              )}
+              <SealMark />
+            </button>
+
+            <p ref={hintRef} className="env-hint" aria-hidden>
+              {wedding.cover.curtainPrompt}
+            </p>
+          </div>
         </div>
       </div>
 

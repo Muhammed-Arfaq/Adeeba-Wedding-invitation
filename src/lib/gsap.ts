@@ -5,6 +5,14 @@ import { Flip } from "gsap/Flip";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, Flip);
 
+/* Mobile browsers fire `resize` every time the URL bar slides in or out, i.e.
+   in the middle of the scroll gesture that hides it. Left alone, ScrollTrigger
+   answers with a full refresh — re-measuring every panel and snapping the
+   scrubbed transforms to the new numbers — which lands as a jolt right at the
+   panel handoff. This ignores height-only resizes on touch devices, which is
+   exactly the browser-chrome case; orientation changes still refresh. */
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 /* Reveal classes (.rv/.rv-l/.rv-r) start at opacity:0, but only once this
    class is on <html>. Setting it here — at module scope, on the import that
    index.tsx already pulls in for its side effect — means it lands before

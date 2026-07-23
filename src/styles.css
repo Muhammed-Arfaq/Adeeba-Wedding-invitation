@@ -147,11 +147,12 @@
 /* ─── Reveal system ──────────────────────────────────────────
    Pre-hidden only once JS confirms it can run (`html.motion-ready`,
    set in src/lib/gsap.ts). No JS, or reduced motion → paints normally. */
-.rv,
-.rv-l,
-.rv-r {
-  will-change: opacity, transform;
-}
+/* No permanent `will-change` here. Every `.rv` in all seven panels would be a
+   GPU layer for the life of the page, and when the stack scales a panel the
+   raster scale of every promoted descendant changes with it — dozens of
+   re-rasterised layers per frame, which is the vibration reported during the
+   handoff. The reveal tweens animate opacity/transform/filter, which Chrome
+   already composites for their duration. */
 
 html.motion-ready .rv,
 html.motion-ready .rv-l,
@@ -176,6 +177,17 @@ html.motion-ready .rv-r {
   /* No permanent `will-change`: promoting all seven full-screen panels to GPU
      layers at once strains mobile GPUs and can itself flicker. StackScroll's
      `force3D` promotes only the one panel currently animating. */
+}
+
+/* Added by StackScroll for the duration of a panel's handoff, and removed
+   again after. `force3D` alone gives the panel a layer but not a *stable* one:
+   without this hint Chrome re-rasterises the whole textured panel — grain
+   blend, shadow and all — on every sub-pixel change of `scale`, which is the
+   dominant cost behind the juddering as the next panel nears the top. With it,
+   the panel is rastered once and scaled on the GPU. Scoped to the one or two
+   panels mid-handoff, never all seven (see .panel above). */
+.panel--handoff {
+  will-change: transform;
 }
 
 /* While the wax seal is unbroken, the envelope is the whole page: it sits
@@ -363,23 +375,42 @@ html.scroll-locked body {
   place-self: center;
 }
 
-/* The envelope itself is pinned to the centre of the viewport, NOT the grid.
-   `top: 50svh` is measured from the scene's top edge, which sits at the
-   document top while sealed (scroll is locked), so this is exactly the
-   viewport centre — and it does NOT depend on the scene's height. That is
-   what stops the envelope shifting when the tall, opacity-0 card returns to
-   flow the instant the seal opens (the reported "moves down while opening").
-   `translate` is its own property, so the GSAP drift and open transforms
-   compose with it instead of clobbering the centring. */
+/* The envelope is centred by a layer of its own that is exactly one visible
+   viewport tall, NOT by the scene's grid. Its top edge is the scene's top
+   edge, which sits at the document top while sealed (scroll is locked), so
+   `place-items: center` lands on the true viewport centre — and does NOT
+   depend on the scene's height. That is what stops the envelope shifting when
+   the tall, opacity-0 card returns to flow the instant the seal opens (the
+   reported "moves down while opening").
+
+   Centring by real layout rather than by a computed `top` + `translate` is
+   deliberate and load-bearing: GSAP's CSSPlugin folds the independent
+   `translate`/`rotate`/`scale` properties into the `transform` matrix and then
+   sets them to `none`, so a `translate: -50% -50%` here would be frozen into
+   pixels the moment the drift tween first touched the element — and useGSAP is
+   a *layout* effect, so it froze them before --app-height had even been
+   measured. Anything that resizes the envelope afterwards then left it
+   off-centre. Grid placement re-centres by itself and has nothing for GSAP to
+   clobber. Don't reintroduce a `translate` on .env-photo / .env-stage. */
+.env-centre {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* --app-height is the *visible* height (visualViewport, see EnvelopeCover);
+     100svh is the SSR / no-JS fallback. */
+  height: var(--app-height, 100svh);
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  /* The layer spans the viewport, so it must never swallow taps meant for the
+     card underneath it once the envelope is gone. */
+  pointer-events: none;
+}
 .env-photo,
 .env-stage {
-  position: absolute;
-  left: 50%;
-  /* --app-height is window.innerHeight (the real visible height incl. the URL
-     bar); 100svh is the SSR / no-JS fallback. See EnvelopeCover. */
-  top: calc(var(--app-height, 100svh) / 2);
-  translate: -50% -50%;
-  z-index: 2;
+  grid-area: 1 / 1;
+  pointer-events: auto;
 }
 
 /* ── Photographic envelope (mobile) ──────────────────────────
@@ -479,13 +510,19 @@ html.scroll-locked body {
 .env-photo__halo:nth-of-type(2) {
   animation-delay: 1.4s;
 }
-/* In-flow beneath the frame (see .env-photo) — always on-screen. */
-.env-photo__hint {
+/* In flow beneath the frame (see .env-photo), so the envelope and its prompt
+   centre together as one group and the prompt can never be pushed off-screen.
+   The element also carries `.env-hint` — which the open timeline fades, but
+   which positions the *desktop* hint absolutely — so this has to out-specify
+   it rather than merely come later in the file. */
+.env-photo .env-photo__hint {
+  position: static;
+  transform: none;
   white-space: nowrap;
-  font-size: 0.6rem;
+  font-size: 0.64rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(232, 207, 148, 0.9);
+  color: rgba(240, 220, 170, 0.95);
 }
 
 /* Swap the CSS envelope for the artwork on phones */
@@ -1532,6 +1569,7 @@ html.scroll-locked body {
   .particle,
   .music-dot.playing,
   .env-halo,
+  .env-photo__halo,
   .env-glow,
   .emblem__ring--outer,
   .scroll-cue__line,

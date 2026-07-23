@@ -61,6 +61,12 @@ export function StackScroll({ children }: { children: ReactNode }) {
               end: "top top", // ...and reaches the viewport top
               scrub: 0.6,
               invalidateOnRefresh: true, // innerHeight is re-read on refresh
+              /* Hold a stable GPU layer for the handoff only. `force3D` gives
+                 the panel a layer but Chrome still re-rasterises it on every
+                 sub-pixel change of `scale`; the hint makes it raster once and
+                 scale on the GPU. Removed again on the way out, so we never
+                 promote more than the panels actually in motion. */
+              onToggle: (self) => panel.classList.toggle("panel--handoff", self.isActive),
             },
           },
         );
