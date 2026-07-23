@@ -329,6 +329,20 @@ html.scroll-locked body {
   display: grid;
   place-items: center;
   min-height: 100svh;
+  /* The height the sealed envelope centres and sizes itself against.
+
+     Every misalignment reported here has had the same shape: some source
+     *over*-reported the visible height, so the centre landed too low and left
+     a gap above the envelope with the hint pushed off the bottom. Both sources
+     can over-report and neither can under-report by much, so take the smaller
+     and the whole class of bug goes away:
+       - `100svh` is the viewport with the browser's dynamic toolbars *shown*,
+         which is exactly the sealed state (scroll is locked, so the URL bar
+         cannot retract). Some Androids still report it as the large viewport.
+       - `--app-height` is min(visualViewport.height, innerHeight) from JS, and
+         is the accurate one when svh misbehaves.
+     Don't collapse this to a single source — that is what regressed twice. */
+  --env-vh: min(100svh, var(--app-height, 100svh));
   padding: 1.5rem;
   overflow: hidden;
   background-color: #211f19;
@@ -397,9 +411,8 @@ html.scroll-locked body {
   top: 0;
   left: 0;
   right: 0;
-  /* --app-height is the *visible* height (visualViewport, see EnvelopeCover);
-     100svh is the SSR / no-JS fallback. */
-  height: var(--app-height, 100svh);
+  /* The smaller of the CSS and JS readings — see --env-vh on .env-scene. */
+  height: var(--env-vh, 100svh);
   display: grid;
   place-items: center;
   z-index: 2;
@@ -430,7 +443,7 @@ html.scroll-locked body {
    941:1672 plate within the viewport minus space for the hint and margins. */
 .env-photo__frame {
   position: relative;
-  width: min(calc(100vw - 3rem), calc((var(--app-height, 100svh) - 10rem) * 941 / 1672));
+  width: min(calc(100vw - 3rem), calc((var(--env-vh, 100svh) - 10rem) * 941 / 1672));
   aspect-ratio: 941 / 1672;
   perspective: 1600px;
 }

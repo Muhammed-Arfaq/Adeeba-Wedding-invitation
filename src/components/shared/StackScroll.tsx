@@ -50,14 +50,35 @@ export function StackScroll({ children }: { children: ReactNode }) {
           panel,
           { y: 0, scale: 1 },
           {
-            y: () => window.innerHeight,
+            /* Travel exactly the distance the page scrolls during the handoff,
+               which is what cancels the scroll and holds the panel still.
+
+               That is normally one viewport — but not for a panel shorter than
+               the viewport. `.env-scene` is `100svh`, the URL-bar-*shown*
+               height, while ScrollTrigger measures the viewport with
+               `window.innerHeight`, the URL-bar-*hidden* one; on Chrome Android
+               the cover is therefore ~60px shorter than the viewport, its
+               handoff resolves to a negative scroll position, and the clamp
+               below starts it at 0 over a correspondingly shorter span. Taking
+               the next panel's document offset as the ceiling matches `y` to
+               that span. It resolves to plain `innerHeight` in every ordinary
+               case, and the expression is scroll-position independent, so it is
+               safe to re-evaluate during a refresh. */
+            y: () =>
+              Math.min(window.innerHeight, next.getBoundingClientRect().top + window.scrollY),
             scale: 0.96,
             ease: "none",
             force3D: true,
             transformOrigin: "50% 0%",
             scrollTrigger: {
               trigger: next,
-              start: "top bottom", // next panel's top enters the viewport
+              /* `clamp()` keeps the start from resolving to a NEGATIVE scroll
+                 position. Without it, a panel shorter than the viewport is
+                 already part-way through its handoff at scroll 0 — the cover
+                 was rendering translated ~56px down with the scale already
+                 easing off, which reads as a gap above the envelope and pushes
+                 the "tap the seal" hint against the bottom edge. */
+              start: "clamp(top bottom)", // next panel's top enters the viewport
               end: "top top", // ...and reaches the viewport top
               scrub: 0.6,
               invalidateOnRefresh: true, // innerHeight is re-read on refresh
