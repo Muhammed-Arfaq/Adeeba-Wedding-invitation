@@ -384,11 +384,20 @@ html.scroll-locked body {
    Two keyed plates from the supplied artwork. The wrapper carries the
    plates' own 941:1672 aspect so every percentage below — the hinge, the
    seal hit area — maps to the image rather than to the viewport. */
+/* Centred flex column: the envelope frame with the "tap to open" hint beneath
+   it, so the two centre together as one group (the hint is never off-screen). */
 .env-photo {
   display: none;
-  /* Fits both viewport axes: width capped by the screen width (with a small
-     margin) and by the height that keeps the 941:1672 plate within 100svh. */
-  width: min(calc(100% - 1.5rem), calc((100svh - 1.5rem) * 941 / 1672));
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+/* The envelope itself. Sized to leave clear margin on every side AND room for
+   the hint: width capped by the screen width, and by the height that keeps the
+   941:1672 plate within the viewport minus space for the hint and margins. */
+.env-photo__frame {
+  position: relative;
+  width: min(calc(100vw - 3rem), calc((100svh - 10rem) * 941 / 1672));
   aspect-ratio: 941 / 1672;
   perspective: 1600px;
 }
@@ -468,22 +477,19 @@ html.scroll-locked body {
 .env-photo__halo:nth-of-type(2) {
   animation-delay: 1.4s;
 }
+/* In-flow beneath the frame (see .env-photo) — always on-screen. */
 .env-photo__hint {
-  position: absolute;
-  left: 50%;
-  bottom: -2.25rem;
-  transform: translateX(-50%);
   white-space: nowrap;
-  font-size: 0.55rem;
+  font-size: 0.6rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(232, 207, 148, 0.85);
+  color: rgba(232, 207, 148, 0.9);
 }
 
 /* Swap the CSS envelope for the artwork on phones */
 @media (max-width: 639px) {
   .env-photo {
-    display: block;
+    display: flex;
   }
   .env-stage {
     display: none;
@@ -503,6 +509,14 @@ html.scroll-locked body {
   z-index: 3;
   width: 100%;
   max-width: 100%;
+}
+/* Kill the flash of the invitation card before the envelope. The card is
+   SSR-rendered with aria-hidden="true" while sealed, so this hides it from the
+   very first paint — before GSAP (which also sets opacity:0) has hydrated.
+   Without it the card paints, then the envelope image loads over it. */
+.env-slot[aria-hidden="true"] {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .envelope {

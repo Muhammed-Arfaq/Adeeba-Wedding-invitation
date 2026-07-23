@@ -22,6 +22,25 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: wedding.meta.ogTitle },
       { property: "og:description", content: wedding.meta.ogDescription },
     ],
+    /* The sealed envelope is the first thing on screen — fetch its plates up
+       front so it doesn't pop in after the page. `media` keeps it phone-only
+       (the artwork is swapped for the CSS envelope at ≥640px). */
+    links: [
+      {
+        rel: "preload",
+        as: "image",
+        href: "/images/envelope-body.webp",
+        type: "image/webp",
+        media: "(max-width: 639px)",
+      },
+      {
+        rel: "preload",
+        as: "image",
+        href: "/images/envelope-flap.webp",
+        type: "image/webp",
+        media: "(max-width: 639px)",
+      },
+    ],
   }),
   component: Index,
 });

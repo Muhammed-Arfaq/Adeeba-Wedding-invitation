@@ -226,61 +226,67 @@ export function EnvelopeCover() {
           Two keyed plates: kraft body, then the black flap carrying the wax.
           The flap hinges on its own right edge — x=884 of 941 in the source. */}
       <div ref={photoRef} className="env-photo" aria-hidden={opened}>
-        {/* WebP is ~92% smaller than the keyed PNG (327KB vs 4.2MB for the
-            pair); the PNG stays as a fallback for pre-2020 browsers. */}
-        <picture>
-          <source srcSet="/images/envelope-body.webp" type="image/webp" />
-          <img
-            src="/images/envelope-body.png"
-            alt=""
-            className="env-photo__plate env-photo__body"
-            draggable={false}
-          />
-        </picture>
+        {/* The sized, aspect-locked envelope. The hint below sits outside it so
+            the two centre together as one group. */}
+        <div className="env-photo__frame">
+          {/* WebP is ~92% smaller than the keyed PNG (327KB vs 4.2MB for the
+              pair); the PNG stays as a fallback for pre-2020 browsers. */}
+          <picture>
+            <source srcSet="/images/envelope-body.webp" type="image/webp" />
+            <img
+              src="/images/envelope-body.png"
+              alt=""
+              className="env-photo__plate env-photo__body"
+              draggable={false}
+              fetchPriority="high"
+            />
+          </picture>
 
-        <div ref={photoPocketRef} className="env-photo__pocket">
-          <p className="text-[0.46rem] tracking-[0.28em] uppercase text-[#8a6a2a]">
-            {wedding.cover.subtitle}
-          </p>
-          <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
-            {wedding.bride.shortName}
-          </p>
-          <p className="font-arabic text-xs text-[#8a6a2a]">&amp;</p>
-          <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
-            {wedding.groom.shortName}
-          </p>
-          <span className="mt-0.5 block h-px w-8 bg-[rgba(120,90,29,0.45)]" />
-          <p className="text-[0.44rem] tracking-[0.2em] uppercase text-[#6b5b42]">
-            {wedding.weddingDateLabel}
-          </p>
+          <div ref={photoPocketRef} className="env-photo__pocket">
+            <p className="text-[0.46rem] tracking-[0.28em] uppercase text-[#8a6a2a]">
+              {wedding.cover.subtitle}
+            </p>
+            <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
+              {wedding.bride.shortName}
+            </p>
+            <p className="font-arabic text-xs text-[#8a6a2a]">&amp;</p>
+            <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
+              {wedding.groom.shortName}
+            </p>
+            <span className="mt-0.5 block h-px w-8 bg-[rgba(120,90,29,0.45)]" />
+            <p className="text-[0.44rem] tracking-[0.2em] uppercase text-[#6b5b42]">
+              {wedding.weddingDateLabel}
+            </p>
+          </div>
+
+          <picture>
+            <source srcSet="/images/envelope-flap.webp" type="image/webp" />
+            <img
+              ref={photoFlapRef}
+              src="/images/envelope-flap.png"
+              alt=""
+              className="env-photo__plate env-photo__flap"
+              draggable={false}
+              fetchPriority="high"
+            />
+          </picture>
+
+          <button
+            ref={photoSealRef}
+            type="button"
+            onClick={openEnvelope}
+            className="env-photo__seal"
+            aria-label="Open the invitation"
+            disabled={opened}
+          >
+            {!opened && (
+              <>
+                <span className="env-photo__halo" aria-hidden />
+                <span className="env-photo__halo" aria-hidden />
+              </>
+            )}
+          </button>
         </div>
-
-        <picture>
-          <source srcSet="/images/envelope-flap.webp" type="image/webp" />
-          <img
-            ref={photoFlapRef}
-            src="/images/envelope-flap.png"
-            alt=""
-            className="env-photo__plate env-photo__flap"
-            draggable={false}
-          />
-        </picture>
-
-        <button
-          ref={photoSealRef}
-          type="button"
-          onClick={openEnvelope}
-          className="env-photo__seal"
-          aria-label="Open the invitation"
-          disabled={opened}
-        >
-          {!opened && (
-            <>
-              <span className="env-photo__halo" aria-hidden />
-              <span className="env-photo__halo" aria-hidden />
-            </>
-          )}
-        </button>
 
         <p className="env-hint env-photo__hint" aria-hidden>
           {wedding.cover.curtainPrompt}
