@@ -22,19 +22,40 @@ if (typeof document !== "undefined") {
   document.documentElement.classList.add("motion-ready");
 }
 
+/* Phones skip the reveal's blur. The reveals fire at `top 82%`, which is inside
+   the panel handoff by construction — the handoff runs from the incoming
+   panel's top at the viewport bottom to the viewport top, so every start
+   position sits within it. An animated `filter: blur()` cannot be composited:
+   Chrome repaints each of the eight-or-so staggered elements on every frame the
+   tween runs, on exactly the frames the stack is already scaling a full-screen
+   textured panel. Desktop GPUs absorb that; phones drop frames, and a dropped
+   frame is what turns the scrubbed transform's steady one-frame lag into a
+   varying one — which is what the eye reads as vibration. Same reveal, minus
+   the one part of it that can't be done on the GPU.
+
+   Evaluated at module scope: this module is imported for its side effects
+   before hydration, and REVEAL is only ever read inside `useGSAP`, so the
+   server's value (desktop) is never rendered. */
+const PHONE = typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches;
+
+/** Reveal blur, or nothing on phones. Pair `revealBlur(n)` in `from` with
+ *  `revealBlur(0)` in `to` so the property is absent from both or neither —
+ *  a `to` that animates to `blur(0px)` from no filter costs the same repaints. */
+export const revealBlur = (px: number) => (PHONE ? {} : { filter: `blur(${px}px)` });
+
 /** Shared reveal defaults, so every section moves with one voice. */
 export const REVEAL = {
-  from: { opacity: 0, y: 34, filter: "blur(6px)" },
+  from: { opacity: 0, y: 34, ...revealBlur(6) },
   to: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
+    ...revealBlur(0),
     duration: 0.9,
     ease: "power3.out",
   },
   stagger: 0.11,
   start: "top 82%",
-} as const;
+};
 
 export function prefersReducedMotion() {
   return (

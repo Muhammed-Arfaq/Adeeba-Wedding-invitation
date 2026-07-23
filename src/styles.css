@@ -179,15 +179,31 @@ html.motion-ready .rv-r {
      `force3D` promotes only the one panel currently animating. */
 }
 
-/* Added by StackScroll for the duration of a panel's handoff, and removed
-   again after. `force3D` alone gives the panel a layer but not a *stable* one:
-   without this hint Chrome re-rasterises the whole textured panel — grain
-   blend, shadow and all — on every sub-pixel change of `scale`, which is the
-   dominant cost behind the juddering as the next panel nears the top. With it,
-   the panel is rastered once and scaled on the GPU. Scoped to the one or two
-   panels mid-handoff, never all seven (see .panel above). */
+/* Added by StackScroll for the duration of a panel's handoff, and removed a
+   beat after it ends (the delay matters — see the note on `onToggle` there).
+   This is the *only* thing that promotes a panel: without it Chrome
+   re-rasterises the whole textured panel — grain blend, shadow and all — on
+   every sub-pixel change of `scale`, which is the dominant cost behind the
+   juddering as the next panel nears the top. With it, the panel is rastered
+   once and scaled on the GPU. Scoped to the one or two panels mid-handoff,
+   never all seven (see .panel above). */
 .panel--handoff {
   will-change: transform;
+}
+
+/* …but a promoted layer only rasters once if its contents hold still. Anything
+   inside that paints on a loop of its own drags the whole layer back through
+   raster every frame — and at the current scale, so the saving is lost exactly
+   when it is needed. `.shimmer` is the worst of them: `background-position` on
+   `background-clip: text` cannot be composited, so it repaints its headline
+   every frame, forever. All of these are slow ambient loops (7s sheen, 40s
+   ring, 11–17s dust); holding them for the one viewport of scrolling a handoff
+   lasts is imperceptible, and it is what lets the panel raster once. */
+.panel--handoff .shimmer,
+.panel--handoff .emblem__ring--outer,
+.panel--handoff .particle,
+.panel--handoff .scroll-cue__line {
+  animation-play-state: paused;
 }
 
 /* While the wax seal is unbroken, the envelope is the whole page: it sits
@@ -1074,7 +1090,11 @@ html.scroll-locked body {
   border-radius: 50%;
   background: radial-gradient(circle, #f5e6bf 0%, rgba(201, 164, 76, 0.5) 55%, transparent 100%);
   animation: particle-rise linear infinite;
-  will-change: transform, opacity;
+  /* No `will-change` here — it was twelve permanently promoted layers inside
+     the finale, and when the stack scales that panel the raster scale of every
+     promoted descendant changes with it. Same trap `.rv` was pulled out of
+     above. The keyframes animate transform and opacity, which Chrome
+     composites for their duration anyway. */
 }
 @keyframes particle-rise {
   0% {

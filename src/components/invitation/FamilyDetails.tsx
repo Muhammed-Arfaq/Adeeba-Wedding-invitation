@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { gsap, useGSAP, prefersReducedMotion, REVEAL } from "@/lib/gsap";
+import { gsap, useGSAP, prefersReducedMotion, REVEAL, revealBlur } from "@/lib/gsap";
 import { wedding } from "@/config/wedding";
 import { SectionLabel, SectionTitle, ArchOrnament } from "@/components/shared/GoldDivider";
 
@@ -81,12 +81,12 @@ export function FamilyDetails() {
         {
           opacity: 0,
           x: (i: number) => (i === 0 ? -56 : 56),
-          filter: "blur(8px)",
+          ...revealBlur(8),
         },
         {
           opacity: 1,
           x: 0,
-          filter: "blur(0px)",
+          ...revealBlur(0),
           duration: 1.1,
           ease: "power3.out",
           stagger: 0.12,

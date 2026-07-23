@@ -8,6 +8,7 @@ export function ScrollProgress() {
   useEffect(() => {
     let frame = 0;
     let max = 0;
+    let last = "";
 
     /* `scrollHeight` flushes pending layout. Reading it inside the scroll frame
        — as this used to — forced a synchronous layout on every scrolled frame,
@@ -24,7 +25,15 @@ export function ScrollProgress() {
       const el = barRef.current;
       if (!el) return;
       const ratio = max > 0 ? window.scrollY / max : 0;
-      el.style.transform = `scaleX(${Math.min(1, Math.max(0, ratio))})`;
+      /* Rounded, and skipped when unchanged. A 2px bar can't show more than
+         ~0.1% of progress, and the scroll keeps drifting sub-pixel for the best
+         part of a second after it looks stopped — this is the same settling
+         tail StackScroll snaps out, and writing here on those frames would put
+         a style invalidation back on exactly the frames it just freed. */
+      const next = `scaleX(${Math.min(1, Math.max(0, ratio)).toFixed(4)})`;
+      if (next === last) return;
+      last = next;
+      el.style.transform = next;
     };
 
     const onScroll = () => {
