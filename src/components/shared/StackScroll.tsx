@@ -56,10 +56,10 @@ export function StackScroll({ children }: { children: ReactNode }) {
            full-screen displacement adds no scroll height. A slight scale back
            lets it recede behind the incoming page.
 
-           Smoothness: `scrub: 0.6` low-pass-filters the scroll so the transform
-           doesn't vibrate against the scroller's sub-pixel values (the reported
-           flicker as the next page nears the top); `snap` keeps the settling
-           tail from re-rastering for changes below a physical pixel; and we
+           Smoothness: `scrub: true` keeps the freeze exact (see the note on it
+           below — a numeric scrub reads as the panel sliding out of place and
+           settling back); `snap` keeps the settling tail from re-rastering for
+           changes below a physical pixel; and we
            deliberately do NOT animate opacity — fading a panel whose
            `.paper-grain` uses `mix-blend-mode` forces a full recomposite every
            frame and flickers.
@@ -111,7 +111,30 @@ export function StackScroll({ children }: { children: ReactNode }) {
                  the "tap the seal" hint against the bottom edge. */
               start: "clamp(top bottom)", // next panel's top enters the viewport
               end: "top top", // ...and reaches the viewport top
-              scrub: 0.6,
+              /* `true`, not a number, and this is not negotiable for a freeze.
+                 A numeric scrub drives `totalProgress` through an `expo` tween
+                 of that duration, restarted toward the new target on every
+                 update (ScrollTrigger.js, `scrubTween`). One 60fps frame is
+                 2.8% of a 0.6s duration and `expo.out(0.028)` ≈ 0.175, so each
+                 frame closes only ~17% of the gap and the steady-state lag
+                 settles at ~4.7 frames of travel — around 190px at a moderate
+                 40px/frame. The panel is only frozen if `y` cancels the scroll
+                 *exactly*, so that lag is not smoothing, it is displacement:
+                 the panel visibly rides out of position while you scroll and
+                 eases back once you stop, in both directions. `true` renders
+                 the tween synchronously inside the scroll event instead, so `y`
+                 is always the current scroll offset and the panel genuinely
+                 holds still.
+
+                 This is why the earlier low-pass was there, and why it can go
+                 now: it was masking per-frame cost, not scroll noise. The panel
+                 is promoted for the whole handoff, its ambient loops are
+                 paused, the reveals no longer animate an uncompositable blur on
+                 phones, and Lenis writes the scroll from inside `gsap.ticker`
+                 so the transform lands in the same frame — see the notes on
+                 each. Reintroduce a numeric scrub and the displacement comes
+                 straight back. */
+              scrub: true,
               invalidateOnRefresh: true, // innerHeight is re-read on refresh
               /* Hold a stable GPU layer for the handoff, and let go again after,
                  so we never promote more than the panels actually in motion.
