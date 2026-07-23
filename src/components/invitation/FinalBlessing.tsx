@@ -125,7 +125,7 @@ export function FinalBlessing() {
             href={`tel:${wedding.credit.phone.replace(/\s/g, "")}`}
             className="t-fg3 mt-3 block text-[0.82rem] transition-colors hover:text-[color:var(--accent)] sm:text-sm"
           >
-            {wedding.credit.phone}
+            {wedding.credit.phone} 
           </a>
         </div>
       </div>
