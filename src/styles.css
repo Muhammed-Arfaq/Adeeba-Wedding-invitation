@@ -173,9 +173,9 @@ html.motion-ready .rv-r {
   position: relative;
   isolation: isolate;
   transform-origin: 50% 0%;
-  /* transform + opacity only — both GPU-composited; keeping the panels on
-     their own layers is what lets the scrub stay smooth. */
-  will-change: transform, opacity;
+  /* No permanent `will-change`: promoting all seven full-screen panels to GPU
+     layers at once strains mobile GPUs and can itself flicker. StackScroll's
+     `force3D` promotes only the one panel currently animating. */
 }
 
 /* While the wax seal is unbroken, the envelope is the whole page: it sits
@@ -375,7 +375,9 @@ html.scroll-locked body {
 .env-stage {
   position: absolute;
   left: 50%;
-  top: 50svh;
+  /* --app-height is window.innerHeight (the real visible height incl. the URL
+     bar); 100svh is the SSR / no-JS fallback. See EnvelopeCover. */
+  top: calc(var(--app-height, 100svh) / 2);
   translate: -50% -50%;
   z-index: 2;
 }
@@ -397,7 +399,7 @@ html.scroll-locked body {
    941:1672 plate within the viewport minus space for the hint and margins. */
 .env-photo__frame {
   position: relative;
-  width: min(calc(100vw - 3rem), calc((100svh - 10rem) * 941 / 1672));
+  width: min(calc(100vw - 3rem), calc((var(--app-height, 100svh) - 10rem) * 941 / 1672));
   aspect-ratio: 941 / 1672;
   perspective: 1600px;
 }

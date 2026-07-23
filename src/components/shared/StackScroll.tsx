@@ -35,24 +35,31 @@ export function StackScroll({ children }: { children: ReactNode }) {
 
            `y` holds the panel still: +1 viewport of downward travel over
            exactly 1 viewport of scroll cancels the scroll, so it reads as
-           frozen while the next page slides up over it. Transforms don't
-           affect layout, so the full-screen displacement adds no scroll
-           height. Meanwhile it recedes — scaling back and dimming — so it
-           sits behind the incoming page rather than just vanishing. */
+           frozen while the next page slides up over it (whose shadow + rounded
+           top sells the depth). Transforms don't affect layout, so the
+           full-screen displacement adds no scroll height. A slight scale back
+           lets it recede behind the incoming page.
+
+           Smoothness: `scrub: 0.6` low-pass-filters the scroll so the transform
+           doesn't vibrate against Lenis's sub-pixel values (the reported
+           flicker as the next page nears the top); `force3D` keeps it on one
+           GPU layer, rendered sub-pixel; and we deliberately do NOT animate
+           opacity — fading a panel whose `.paper-grain` uses `mix-blend-mode`
+           forces a full recomposite every frame and flickers. */
         gsap.fromTo(
           panel,
-          { y: 0, scale: 1, autoAlpha: 1 },
+          { y: 0, scale: 1 },
           {
             y: () => window.innerHeight,
-            scale: 0.92,
-            autoAlpha: 0.4,
+            scale: 0.96,
             ease: "none",
+            force3D: true,
             transformOrigin: "50% 0%",
             scrollTrigger: {
               trigger: next,
               start: "top bottom", // next panel's top enters the viewport
               end: "top top", // ...and reaches the viewport top
-              scrub: true,
+              scrub: 0.6,
               invalidateOnRefresh: true, // innerHeight is re-read on refresh
             },
           },

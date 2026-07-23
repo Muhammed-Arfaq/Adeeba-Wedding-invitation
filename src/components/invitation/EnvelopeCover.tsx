@@ -52,6 +52,23 @@ export function EnvelopeCover() {
     return () => setScrollLocked(false);
   }, []);
 
+  /* Centre the envelope against the *actually visible* height. Mobile browsers'
+     svh/lvh/dvh units disagree with the real viewport while the URL bar shows,
+     which left the envelope off-centre on real phones; window.innerHeight is the
+     reliable number. Only the sealed cover reads --app-height, and scroll is
+     locked then, so the URL bar (and this value) can't shift underfoot. */
+  useEffect(() => {
+    const setH = () =>
+      document.documentElement.style.setProperty("--app-height", `${window.innerHeight}px`);
+    setH();
+    window.addEventListener("resize", setH);
+    window.addEventListener("orientationchange", setH);
+    return () => {
+      window.removeEventListener("resize", setH);
+      window.removeEventListener("orientationchange", setH);
+    };
+  }, []);
+
   useGSAP(
     () => {
       gsap.set([cardRef.current, cueRef.current], { opacity: 0 });
