@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 import { wedding } from "@/config/wedding";
 import { useMusic } from "@/context/MusicContext";
-import { scrollToSection } from "@/components/shared/SmoothScroll";
+import { scrollToSection, setScrollLocked } from "@/components/shared/SmoothScroll";
 import { Particles } from "@/components/shared/Particles";
 import { GoldDivider } from "@/components/shared/GoldDivider";
 import { Emblem786 } from "@/components/shared/Emblem";
@@ -45,6 +45,13 @@ export function EnvelopeCover() {
   const [opened, setOpened] = useState(false);
   const { startMusic } = useMusic();
 
+  /* Hold the page on the sealed envelope until it is opened — nothing below
+     is reachable until the wax breaks. */
+  useEffect(() => {
+    setScrollLocked(true);
+    return () => setScrollLocked(false);
+  }, []);
+
   useGSAP(
     () => {
       gsap.set([cardRef.current, cueRef.current], { opacity: 0 });
@@ -79,6 +86,7 @@ export function EnvelopeCover() {
     openedRef.current = true;
     setOpened(true);
     startMusic();
+    setScrollLocked(false); // the page is now free to scroll
 
     if (prefersReducedMotion()) {
       gsap.set([stageRef.current, photoRef.current], { display: "none" });
@@ -209,7 +217,7 @@ export function EnvelopeCover() {
       ref={rootRef}
       id="cover"
       aria-label="Invitation cover"
-      className="panel panel--dark env-scene paper-grain"
+      className={`panel panel--dark env-scene paper-grain${opened ? "" : " env-sealed"}`}
     >
       <div className="env-glow" aria-hidden />
       <Particles />

@@ -160,10 +160,10 @@ html.motion-ready .rv-r {
 }
 
 /* ─── Stacked panels ─────────────────────────────────────────
-   Each panel slides up over the one before it, which stays put and
-   recedes (GSAP scrub in useStackScroll). Note this is an overlap,
-   not a true pin: a pinned element can only ever show one viewport,
-   so freezing a 3-screen section would strand its lower half. */
+   Each panel is held still while the next slides up over it, then recedes
+   behind — the freeze/scrub lives in StackScroll.tsx. Only an overlap, not a
+   true pin: a pinned element can show just one viewport, so freezing a
+   3-screen section would strand its lower half. */
 .stack {
   position: relative;
   z-index: 1;
@@ -173,7 +173,23 @@ html.motion-ready .rv-r {
   position: relative;
   isolation: isolate;
   transform-origin: 50% 0%;
-  will-change: transform, filter;
+  /* transform + opacity only — both GPU-composited; keeping the panels on
+     their own layers is what lets the scrub stay smooth. */
+  will-change: transform, opacity;
+}
+
+/* While the wax seal is unbroken, the envelope is the whole page: it sits
+   above the 2rem overlap of the panel below, and SmoothScroll's lock stops
+   any scroll reaching them. Cleared the instant it opens so the stack can
+   deal the next page over it. */
+.env-sealed {
+  z-index: 30;
+}
+html.scroll-locked,
+html.scroll-locked body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 .panel + .panel {
@@ -182,6 +198,15 @@ html.motion-ready .rv-r {
   box-shadow:
     0 -2px 0 rgba(255, 255, 255, 0.06),
     0 -22px 50px rgba(22, 21, 15, 0.4);
+}
+
+/* No overlap at the cover → first-section boundary. The -2rem above pulls the
+   next panel up into the cover's viewport, which makes the cover's stack
+   tween start ~32px early at scroll 0 — pre-translating the sealed envelope
+   downward so it sits low instead of centred. Flush here keeps it centred;
+   every later boundary keeps its overlap. */
+.env-scene + .panel {
+  margin-top: 0;
 }
 
 /* A hairline of foil along each panel's leading edge */
@@ -331,13 +356,28 @@ html.motion-ready .rv-r {
   }
 }
 
-/* The envelope and the card it becomes occupy the same grid cell, so the
-   scene is as tall as whichever is bigger and neither ever gets clipped. */
-.env-stage,
-.env-photo,
+/* The card the envelope becomes is a normal grid item, so the scene grows to
+   fit it (tall content, landscape) and the grid centres it. */
 .env-slot {
   grid-area: 1 / 1;
   place-self: center;
+}
+
+/* The envelope itself is pinned to the centre of the viewport, NOT the grid.
+   `top: 50svh` is measured from the scene's top edge, which sits at the
+   document top while sealed (scroll is locked), so this is exactly the
+   viewport centre — and it does NOT depend on the scene's height. That is
+   what stops the envelope shifting when the tall, opacity-0 card returns to
+   flow the instant the seal opens (the reported "moves down while opening").
+   `translate` is its own property, so the GSAP drift and open transforms
+   compose with it instead of clobbering the centring. */
+.env-photo,
+.env-stage {
+  position: absolute;
+  left: 50%;
+  top: 50svh;
+  translate: -50% -50%;
+  z-index: 2;
 }
 
 /* ── Photographic envelope (mobile) ──────────────────────────
@@ -345,11 +385,11 @@ html.motion-ready .rv-r {
    plates' own 941:1672 aspect so every percentage below — the hinge, the
    seal hit area — maps to the image rather than to the viewport. */
 .env-photo {
-  position: relative;
   display: none;
-  width: 100%;
+  /* Fits both viewport axes: width capped by the screen width (with a small
+     margin) and by the height that keeps the 941:1672 plate within 100svh. */
+  width: min(calc(100% - 1.5rem), calc((100svh - 1.5rem) * 941 / 1672));
   aspect-ratio: 941 / 1672;
-  max-width: min(100%, calc(100svh - 3rem) * 941 / 1672);
   perspective: 1600px;
 }
 .env-photo__plate {
@@ -454,8 +494,6 @@ html.motion-ready .rv-r {
 }
 
 .env-stage {
-  position: relative;
-  z-index: 2;
   width: min(90vw, 27rem);
   perspective: 1700px;
 }
@@ -835,9 +873,11 @@ html.motion-ready .rv-r {
     box-shadow 0.4s var(--e-silk),
     border-color 0.4s ease;
 }
+/* No backdrop-filter: these cards live inside panels the stack scrub scales
+   and fades, and re-blurring a moving backdrop every frame is what made the
+   scroll lag. A semi-opaque dark fill reads the same over the textured band. */
 .panel--dark .card {
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: linear-gradient(168deg, rgba(58, 54, 44, 0.5) 0%, rgba(28, 26, 20, 0.46) 100%);
   box-shadow:
     0 6px 18px rgba(0, 0, 0, 0.3),
     0 22px 54px rgba(0, 0, 0, 0.34);
@@ -1323,15 +1363,14 @@ html.motion-ready .rv-r {
   width: 100%;
   border-radius: 0.9rem;
   overflow: hidden;
+  /* Opaque fill instead of backdrop-blur — see the note on .panel--dark .card */
   background: linear-gradient(
     160deg,
-    rgba(244, 234, 215, 0.14) 0%,
-    rgba(244, 234, 215, 0.05) 52%,
-    rgba(22, 21, 15, 0.3) 100%
+    rgba(74, 68, 54, 0.5) 0%,
+    rgba(42, 39, 31, 0.5) 52%,
+    rgba(18, 17, 12, 0.6) 100%
   );
   border: 1px solid rgba(224, 192, 122, 0.3);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   box-shadow:
     0 8px 22px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(244, 234, 215, 0.18);
@@ -1402,8 +1441,7 @@ html.motion-ready .rv-r {
   box-shadow: var(--sh-2);
 }
 .panel--dark .signature {
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: linear-gradient(168deg, rgba(58, 54, 44, 0.5) 0%, rgba(28, 26, 20, 0.46) 100%);
 }
 
 /* ─── Mobile type scale ──────────────────────────────────── */

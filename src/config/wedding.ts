@@ -137,6 +137,15 @@ export const wedding = {
     phone: "+91 95444 84103",
   },
 
+  /** Foot of the finale — a quiet credit inviting others to commission one. */
+  credit: {
+    label: "Crafted with love",
+    message: "Would you like a digital wedding invitation like this one?",
+    cta: "Message on WhatsApp",
+    phone: "+91 95671 67619",
+    whatsapp: "https://wa.me/919567167619",
+  },
+
   music: {
     url: "/music/nasheed.mp3",
     title: "Islamic Wedding Ambience",

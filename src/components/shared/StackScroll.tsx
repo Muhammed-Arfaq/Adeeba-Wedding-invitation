@@ -30,33 +30,31 @@ export function StackScroll({ children }: { children: ReactNode }) {
         const next = panels[i + 1];
         if (!next) return; // nothing covers the last one
 
-        const st = {
-          trigger: next,
-          start: "top bottom", // next panel's top enters the viewport
-          end: "top top", // ...and reaches the viewport top
-          scrub: true,
-          invalidateOnRefresh: true, // innerHeight is read on refresh, not once
-        } as const;
+        /* One tween, one ScrollTrigger per panel — fewer moving parts for the
+           scrubber to keep in sync each frame.
 
-        /* Hold it still: +1 viewport of travel over exactly 1 viewport of
-           scroll. Transforms don't affect layout, so this adds no scroll
-           height even though the panel is displaced a full screen down. */
+           `y` holds the panel still: +1 viewport of downward travel over
+           exactly 1 viewport of scroll cancels the scroll, so it reads as
+           frozen while the next page slides up over it. Transforms don't
+           affect layout, so the full-screen displacement adds no scroll
+           height. Meanwhile it recedes — scaling back and dimming — so it
+           sits behind the incoming page rather than just vanishing. */
         gsap.fromTo(
           panel,
-          { y: 0 },
-          { y: () => window.innerHeight, ease: "none", scrollTrigger: st },
-        );
-
-        /* ...and let it sink away behind the incoming page. */
-        gsap.fromTo(
-          panel,
-          { scale: 1, opacity: 1 },
+          { y: 0, scale: 1, autoAlpha: 1 },
           {
+            y: () => window.innerHeight,
             scale: 0.92,
-            opacity: 0.35,
+            autoAlpha: 0.4,
             ease: "none",
             transformOrigin: "50% 0%",
-            scrollTrigger: st,
+            scrollTrigger: {
+              trigger: next,
+              start: "top bottom", // next panel's top enters the viewport
+              end: "top top", // ...and reaches the viewport top
+              scrub: true,
+              invalidateOnRefresh: true, // innerHeight is re-read on refresh
+            },
           },
         );
       });
