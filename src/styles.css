@@ -179,6 +179,49 @@ html.motion-ready .rv-r {
      `force3D` promotes only the one panel currently animating. */
 }
 
+/* The handoff, run by the compositor instead of the main thread. A scroll-driven
+   animation reads the same scroll offset the compositor is already applying, in
+   the same frame, so the outgoing panel's counter-translation can never be a
+   frame stale — which is the one failure a main-thread scrub cannot avoid on a
+   phone, where touch scrolling is composited and the transform is not. That
+   desync is what was left after the geometry was made exact.
+
+   `--stack-y`, `--stack-scale` and `animation-range` are written inline per
+   panel by StackScroll from measured layout; the range is the same span its
+   ScrollTrigger uses, so the two paths are the same animation expressed twice.
+   Longhands on purpose — the `animation` shorthand resets `animation-timeline`
+   to `auto` and would silently turn this back into a zero-duration time-driven
+   animation.
+
+   Selected structurally — never via a class added from JS. EnvelopeCover
+   rebuilds its own `className` when the envelope opens, and React writes the
+   whole attribute, so an imperatively added class is silently wiped on exactly
+   the panel that needs it most. `html.motion-ready` is on <html>, outside React
+   entirely, and is only set once JS has confirmed it can run.
+
+   Both keyframe values are variables with identity defaults, so a panel that
+   StackScroll has not measured — the last one, which nothing covers, or any of
+   them in the moment before the layout effect runs — animates from itself to
+   itself and renders exactly as if the rule were not there. That is what makes
+   it safe to hand the whole stack one declarative rule and let JS decide, by
+   writing the variables, which panels it actually applies to. */
+@keyframes panel-handoff {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(0, var(--stack-y, 0px), 0) scale(var(--stack-scale, 1));
+  }
+}
+@supports (animation-timeline: scroll(root block)) {
+  html.motion-ready .stack > .panel:not(:last-child) {
+    animation-name: panel-handoff;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: scroll(root block);
+  }
+}
+
 /* Added by StackScroll for the duration of a panel's handoff, and removed a
    beat after it ends (the delay matters — see the note on `onToggle` there).
    This is the *only* thing that promotes a panel: without it Chrome
@@ -1619,6 +1662,12 @@ html.scroll-locked body {
   .scroll-cue__line {
     transform: scaleY(1);
     opacity: 0.7;
+  }
+  /* StackScroll bails out before measuring, so the variables stay at their
+     identity defaults and this is already inert — but the stack is the one
+     animation that would otherwise move the whole page, so say it outright. */
+  html.motion-ready .stack > .panel {
+    animation-name: none;
   }
   html.motion-ready .rv,
   html.motion-ready .rv-l,

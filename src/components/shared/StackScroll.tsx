@@ -26,6 +26,55 @@ export function StackScroll({ children }: { children: ReactNode }) {
 
       const panels = gsap.utils.toArray<HTMLElement>(".panel");
 
+      /* Run the handoff on the compositor where the browser can. A scroll-driven
+         animation derives its progress from the same scroll offset the
+         compositor is applying, in the same frame, so the counter-translation
+         that holds the outgoing panel still can never be a frame stale.
+
+         That staleness is the whole of what was left. The geometry is already
+         exact (measured: 0.0px of drift across every handoff) and the main
+         thread is not short of time (~7ms/frame, and switching off the grain
+         blend, the particles, the sheen or the panel shadow moves none of it).
+         But on a phone touch scrolling is composited and this transform is not,
+         so the panel spends every frame applying the previous frame's scroll
+         offset to this frame's scroll position. No main-thread scrub can fix
+         that — and no desktop emulator shows it, which is why it survived two
+         rounds of tuning. */
+      const composited = CSS.supports("animation-timeline: scroll(root block)");
+
+      /* Layout offset, walking `offsetTop` rather than `getBoundingClientRect`
+         so a panel that is itself mid-handoff doesn't report its *transformed*
+         position and poison the measurement. */
+      const docTop = (el: HTMLElement) => {
+        let y = 0;
+        for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null)
+          y += n.offsetTop;
+        return y;
+      };
+
+      /* The same span the ScrollTrigger below resolves to: start where the next
+         panel's top enters the viewport (never below scroll 0 — see the clamp
+         note), end where it reaches the top, travel the distance between, which
+         is one viewport except for a cover shorter than one. Only ever called
+         outside a scroll frame — on setup and on ScrollTrigger's `refresh`,
+         which already ignores the mobile URL-bar resize. */
+      const measure = () => {
+        panels.forEach((panel, i) => {
+          const next = panels[i + 1];
+          if (!next) return;
+          const end = docTop(next);
+          const start = Math.max(0, end - window.innerHeight);
+          panel.style.setProperty("--stack-y", `${end - start}px`);
+          panel.style.setProperty("--stack-scale", "0.96");
+          panel.style.setProperty("animation-range", `${start}px ${end}px`);
+        });
+      };
+
+      if (composited) {
+        measure();
+        ScrollTrigger.addEventListener("refresh", measure);
+      }
+
       /* One physical pixel, and a scale step finer than one physical pixel of
          panel width. Both scroll engines decay asymptotically — Lenis's lerp on
          a wheel, the browser's own fling on touch — so for the best part of a
@@ -46,7 +95,48 @@ export function StackScroll({ children }: { children: ReactNode }) {
         let unpromote = 0;
         clearTimers.push(() => window.clearTimeout(unpromote));
 
-        /* One tween, one ScrollTrigger per panel — fewer moving parts for the
+        /* Hold a stable GPU layer for the handoff, and let go again after, so we
+           never promote more than the panels actually in motion. It also pauses
+           the panel's ambient loops (see the CSS), which matters on both paths:
+           a composited animation keeps running regardless, but a layer whose
+           contents repaint still has to be re-rastered at the current scale.
+
+           The *release* is delayed, and that is the point. This trigger ends at
+           "next panel's top reaches the viewport top" — exactly the moment the
+           flicker was first reported. Dropping `will-change` there tears the
+           composited layer down and forces a full re-raster, and the smallest
+           scroll back re-creates it; ride the boundary and the panel is promoted
+           and de-promoted over and over, which is the flicker rather than a
+           symptom of it. Adding is still immediate — it happens a whole viewport
+           before anything moves — but the drop waits for the panel to have been
+           done for a beat, so scrubbing across the seam never triggers it. */
+        const onToggle = (self: { isActive: boolean }) => {
+          window.clearTimeout(unpromote);
+          if (self.isActive) panel.classList.add("panel--handoff");
+          else unpromote = window.setTimeout(() => panel.classList.remove("panel--handoff"), 650);
+        };
+
+        /* `clamp()` keeps the start from resolving to a NEGATIVE scroll
+           position. Without it, a panel shorter than the viewport is already
+           part-way through its handoff at scroll 0 — the cover was rendering
+           translated ~56px down with the scale already easing off, which reads
+           as a gap above the envelope and pushes the "tap the seal" hint against
+           the bottom edge. `measure()` above clamps the CSS range the same way. */
+        const start = "clamp(top bottom)"; // next panel's top enters the viewport
+        const end = "top top"; //             ...and reaches the viewport top
+
+        if (composited) {
+          /* The transform belongs to the compositor on this path; all that is
+             left for the main thread is the promotion/ambient-loop toggle, which
+             is two class changes per handoff rather than one write per frame. */
+          ScrollTrigger.create({ trigger: next, start, end, onToggle });
+          return;
+        }
+
+        /* Fallback: the same animation on the main thread, for browsers without
+           scroll-driven animations (Safari before 26, Firefox before 144).
+
+           One tween, one ScrollTrigger per panel — fewer moving parts for the
            scrubber to keep in sync each frame.
 
            `y` holds the panel still: +1 viewport of downward travel over
@@ -103,14 +193,8 @@ export function StackScroll({ children }: { children: ReactNode }) {
             snap: { y: dpx, scale: 1 / 2048 },
             scrollTrigger: {
               trigger: next,
-              /* `clamp()` keeps the start from resolving to a NEGATIVE scroll
-                 position. Without it, a panel shorter than the viewport is
-                 already part-way through its handoff at scroll 0 — the cover
-                 was rendering translated ~56px down with the scale already
-                 easing off, which reads as a gap above the envelope and pushes
-                 the "tap the seal" hint against the bottom edge. */
-              start: "clamp(top bottom)", // next panel's top enters the viewport
-              end: "top top", // ...and reaches the viewport top
+              start,
+              end,
               /* `true`, not a number, and this is not negotiable for a freeze.
                  A numeric scrub drives `totalProgress` through an `expo` tween
                  of that duration, restarted toward the new target on every
@@ -136,31 +220,7 @@ export function StackScroll({ children }: { children: ReactNode }) {
                  straight back. */
               scrub: true,
               invalidateOnRefresh: true, // innerHeight is re-read on refresh
-              /* Hold a stable GPU layer for the handoff, and let go again after,
-                 so we never promote more than the panels actually in motion.
-                 Without the hint Chrome re-rasterises the whole textured panel
-                 on every sub-pixel change of `scale`; with it the panel rasters
-                 once and scales on the GPU.
-
-                 The *release* is delayed, and that is the point. This trigger
-                 ends at "next panel's top reaches the viewport top" — exactly
-                 the moment the flicker was reported. Dropping `will-change`
-                 there tears the composited layer down and forces a full
-                 re-raster, and the smallest scroll back re-creates it; ride the
-                 boundary and the panel is promoted and de-promoted over and
-                 over, which is the flicker rather than a symptom of it. Adding
-                 is still immediate — it happens a whole viewport before
-                 anything moves — but the drop waits for the panel to have been
-                 done for a beat, so scrubbing across the seam never triggers it. */
-              onToggle: (self) => {
-                window.clearTimeout(unpromote);
-                if (self.isActive) panel.classList.add("panel--handoff");
-                else
-                  unpromote = window.setTimeout(
-                    () => panel.classList.remove("panel--handoff"),
-                    650,
-                  );
-              },
+              onToggle,
             },
           },
         );
@@ -177,6 +237,17 @@ export function StackScroll({ children }: { children: ReactNode }) {
         window.removeEventListener("load", refresh);
         window.clearTimeout(t);
         clearTimers.forEach((clear) => clear());
+        /* useGSAP's context reverts the tweens and triggers it created; the
+           inline properties are ours to undo. Clearing them leaves the CSS rule
+           animating from identity to identity, which is inert. */
+        if (composited) {
+          ScrollTrigger.removeEventListener("refresh", measure);
+          panels.forEach((panel) => {
+            panel.style.removeProperty("--stack-y");
+            panel.style.removeProperty("--stack-scale");
+            panel.style.removeProperty("animation-range");
+          });
+        }
       };
     },
     { scope: rootRef },
