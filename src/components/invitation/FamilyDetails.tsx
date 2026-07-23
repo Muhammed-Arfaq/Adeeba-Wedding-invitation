@@ -19,30 +19,26 @@ function PersonCard({ person, dir }: { person: Person; dir: "left" | "right" }) 
 
   return (
     <article className={`h-full ${dir === "left" ? "rv-l" : "rv-r"}`}>
-      <div className="card-mint person-card flex flex-col text-center">
+      <div className="card person-card flex flex-col text-center">
         <div className="person-card__crest" aria-hidden>
           {person.shortName.charAt(0)}
         </div>
 
-        <p className="mt-3.5 text-[0.56rem] tracking-[0.3em] uppercase text-gold-deep sm:mt-4 sm:text-[0.62rem] sm:tracking-[0.38em]">
+        <p className="t-accent mt-3.5 text-[0.56rem] tracking-[0.3em] uppercase sm:mt-4 sm:text-[0.62rem] sm:tracking-[0.38em]">
           {person.role}
         </p>
-        <h3 className="mt-1.5 font-display text-xl font-semibold text-forest sm:mt-2 sm:text-3xl">
+        <h3 className="t-fg mt-1.5 font-display text-xl font-semibold sm:mt-2 sm:text-3xl">
           {person.name}
         </h3>
 
         <div className="mt-6 text-left sm:mt-7">
           <Row label={isBride ? "Daughter of" : "Son of"}>
-            <p className="font-display text-sm text-forest/90 sm:text-base">
-              {person.parents.father}
-            </p>
-            <p className="font-display text-sm text-forest/90 sm:text-base">
-              &amp; {person.parents.mother}
-            </p>
+            <p className="t-fg font-display text-sm sm:text-base">{person.parents.father}</p>
+            <p className="t-fg font-display text-sm sm:text-base">&amp; {person.parents.mother}</p>
           </Row>
 
           <Row label="Residence">
-            <p className="text-[0.82rem] leading-relaxed text-forest/80 sm:text-sm">
+            <p className="t-fg2 text-[0.82rem] leading-relaxed sm:text-sm">
               {person.residence.house}
               <br />
               {person.residence.location}
@@ -51,10 +47,7 @@ function PersonCard({ person, dir }: { person: Person; dir: "left" | "right" }) 
 
           <Row label={isBride ? "Granddaughter of" : "Grandson of"}>
             {person.grandparents.map((pair) => (
-              <p
-                key={pair.first}
-                className="text-[0.82rem] leading-relaxed text-forest/80 sm:text-sm"
-              >
+              <p key={pair.first} className="t-fg2 text-[0.82rem] leading-relaxed sm:text-sm">
                 {pair.first} &amp; {pair.second}
               </p>
             ))}
@@ -109,7 +102,7 @@ export function FamilyDetails() {
       ref={rootRef}
       id="families"
       aria-label="The families"
-      className="pat-mint seam-top section-pad"
+      className="panel panel--dark pat-dark paper-grain section-pad"
     >
       <div className="mx-auto max-w-4xl">
         <div className="rv text-center">

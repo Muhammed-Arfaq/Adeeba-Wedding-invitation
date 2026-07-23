@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { InvitationCover } from "@/components/invitation/InvitationCover";
+import { EnvelopeCover } from "@/components/invitation/EnvelopeCover";
+import { StackScroll } from "@/components/shared/StackScroll";
 import { WelcomeMessage } from "@/components/invitation/WelcomeMessage";
 import { FamilyDetails } from "@/components/invitation/FamilyDetails";
 import { WeddingDetails } from "@/components/invitation/WeddingDetails";
@@ -29,21 +30,20 @@ function Index() {
   return (
     <MusicProvider>
       <ScrollProgress />
-      {/* One continuous marble slab behind every band. Fixed rather than a
-          per-section background so the stone reads as a single surface the
-          content slides over, instead of the same 1024px tile restarting in
-          each section. Lenis scrolls the window and applies no wrapper
-          transform, so `position: fixed` stays put. */}
-      <div className="page-marble" aria-hidden />
       <SmoothScroll>
-        <main className="relative z-10 overflow-x-hidden">
-          <InvitationCover />
-          <WelcomeMessage />
-          <FamilyDetails />
-          <WeddingDetails />
-          <CountdownSection />
-          <VenueExperience />
-          <FinalBlessing />
+        <main className="relative overflow-x-hidden">
+          {/* Panel order here is both the scroll order and the stacking
+              order — each one deals over the last. Light and dark alternate
+              so the deck reads as kraft paper interleaved with black card. */}
+          <StackScroll>
+            <EnvelopeCover />
+            <WelcomeMessage />
+            <FamilyDetails />
+            <WeddingDetails />
+            <CountdownSection />
+            <VenueExperience />
+            <FinalBlessing />
+          </StackScroll>
         </main>
       </SmoothScroll>
       <MusicWidget />

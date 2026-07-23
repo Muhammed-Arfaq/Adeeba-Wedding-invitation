@@ -105,7 +105,7 @@ export function CountdownSection() {
       ref={rootRef}
       id="countdown"
       aria-label="Countdown to the wedding"
-      className="pat-mint seam-top section-pad"
+      className="panel panel--dark pat-dark paper-grain section-pad"
     >
       <div className="mx-auto max-w-2xl">
         <div className="rv text-center">
@@ -128,7 +128,7 @@ export function CountdownSection() {
         <div className="rv">
           <GoldDivider />
         </div>
-        <p className="rv text-center font-display text-sm text-gold-deep sm:text-base">
+        <p className="rv t-accent text-center font-display text-sm sm:text-base">
           {wedding.weddingDateLabel} &nbsp;·&nbsp; {wedding.weddingTimeLabel}
         </p>
       </div>

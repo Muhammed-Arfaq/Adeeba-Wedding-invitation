@@ -14,11 +14,11 @@ import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
-    <div className="pat-light flex min-h-screen items-center justify-center px-4">
+    <div className="panel pat-light flex min-h-screen items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-7xl text-forest">404</h1>
-        <h2 className="mt-4 font-display text-xl text-forest">Page not found</h2>
-        <p className="mt-2 text-sm text-forest/70">The page you are looking for does not exist.</p>
+        <h1 className="t-fg font-display text-7xl">404</h1>
+        <h2 className="t-fg mt-4 font-display text-xl">Page not found</h2>
+        <p className="t-fg2 mt-2 text-sm">The page you are looking for does not exist.</p>
         <div className="mt-6">
           <Link to="/" className="btn-gold inline-flex text-sm">
             Return to invitation
@@ -34,12 +34,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
 
   return (
-    <div className="pat-light flex min-h-screen items-center justify-center px-4">
+    <div className="panel pat-light flex min-h-screen items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-xl text-forest">Unable to load invitation</h1>
-        <p className="mt-2 text-sm text-forest/70">
-          Something went wrong. Please try again or return home.
-        </p>
+        <h1 className="t-fg font-display text-xl">Unable to load invitation</h1>
+        <p className="t-fg2 mt-2 text-sm">Something went wrong. Please try again or return home.</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             type="button"

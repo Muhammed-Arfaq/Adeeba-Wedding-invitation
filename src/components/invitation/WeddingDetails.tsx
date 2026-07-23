@@ -75,7 +75,7 @@ export function WeddingDetails() {
       ref={rootRef}
       id="details"
       aria-label="Wedding details"
-      className="pat-light seam-top section-pad"
+      className="panel pat-light paper-grain section-pad"
     >
       <div className="mx-auto max-w-3xl">
         <div className="rv text-center">
@@ -161,13 +161,13 @@ export function WeddingDetails() {
         </div>
 
         <div className="rv mt-8 text-center sm:mt-10">
-          <p className="font-arabic text-base leading-loose text-forest sm:text-xl">
+          <p className="t-fg font-arabic text-base leading-loose sm:text-xl">
             {wedding.quran.details.arabic}
           </p>
-          <p className="mt-3 font-display text-[0.82rem] italic text-forest/80 sm:text-base">
+          <p className="t-fg2 mt-3 font-display text-[0.82rem] italic sm:text-base">
             &ldquo;{wedding.quran.details.verse}&rdquo;
           </p>
-          <p className="mt-2 text-[0.58rem] tracking-[0.24em] uppercase text-gold-deep sm:text-[0.65rem] sm:tracking-[0.32em]">
+          <p className="t-accent mt-2 text-[0.58rem] tracking-[0.24em] uppercase sm:text-[0.65rem] sm:tracking-[0.32em]">
             — {wedding.quran.details.reference}
           </p>
         </div>

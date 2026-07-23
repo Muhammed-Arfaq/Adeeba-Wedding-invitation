@@ -27,7 +27,7 @@ export function VenueExperience() {
       ref={rootRef}
       id="venue"
       aria-label="Venue and directions"
-      className="pat-light seam-top section-pad"
+      className="panel pat-mid paper-grain section-pad"
     >
       <div className="mx-auto max-w-3xl">
         <div className="rv text-center">
@@ -40,7 +40,7 @@ export function VenueExperience() {
           <GoldDivider />
         </div>
 
-        <div className="rv card-light overflow-hidden">
+        <div className="rv card overflow-hidden">
           <div className="venue-map aspect-video w-full">
             <iframe
               src={wedding.venue.mapEmbed}
@@ -52,13 +52,11 @@ export function VenueExperience() {
           </div>
 
           <div className="relative px-5 py-7 text-center sm:px-10 sm:py-9">
-            <h3 className="font-display text-xl font-semibold text-forest sm:text-3xl">
+            <h3 className="t-fg font-display text-xl font-semibold sm:text-3xl">
               {wedding.venue.name}
             </h3>
-            <p className="mt-2 text-[0.82rem] text-gold-deep sm:text-sm">
-              {wedding.venue.landmark}
-            </p>
-            <p className="mx-auto mt-1 max-w-sm text-[0.82rem] leading-relaxed text-forest/80 sm:text-sm">
+            <p className="t-accent mt-2 text-[0.82rem] sm:text-sm">{wedding.venue.landmark}</p>
+            <p className="t-fg2 mx-auto mt-1 max-w-sm text-[0.82rem] leading-relaxed sm:text-sm">
               {wedding.venue.address}
             </p>
 

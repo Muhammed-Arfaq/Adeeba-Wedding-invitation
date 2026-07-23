@@ -32,7 +32,7 @@ export function WelcomeMessage() {
       ref={rootRef}
       id="welcome"
       aria-label="Announcement"
-      className="pat-light seam-top section-pad"
+      className="panel pat-light paper-grain section-pad"
     >
       <div className="mx-auto max-w-2xl text-center">
         <div className="rv">
@@ -47,13 +47,13 @@ export function WelcomeMessage() {
         </div>
 
         {/* The announcement, as it reads on the printed card */}
-        <div className="rv card-light relative px-6 py-9 sm:px-10 sm:py-12">
+        <div className="rv card relative px-6 py-9 sm:px-10 sm:py-12">
           <span className="details-corner details-corner--tl" aria-hidden />
           <span className="details-corner details-corner--tr" aria-hidden />
           <span className="details-corner details-corner--bl" aria-hidden />
           <span className="details-corner details-corner--br" aria-hidden />
 
-          <p className="text-xs tracking-[0.16em] uppercase text-forest/70 sm:text-sm sm:tracking-[0.2em]">
+          <p className="t-fg3 text-xs tracking-[0.16em] uppercase sm:text-sm sm:tracking-[0.2em]">
             {wedding.announcement.lead}
           </p>
           <p className="mt-2.5 font-display text-2xl font-semibold leading-tight sm:mt-3 sm:text-4xl">
@@ -61,11 +61,11 @@ export function WelcomeMessage() {
           </p>
 
           <div className="my-5 flex items-center justify-center gap-3 sm:my-6" aria-hidden>
-            <span className="h-px w-8 bg-linear-to-r from-transparent to-[rgba(201,169,97,0.75)] sm:w-12" />
-            <span className="text-[0.65rem] tracking-[0.22em] uppercase text-forest/50 sm:text-xs sm:tracking-[0.3em]">
+            <span className="h-px w-8 bg-[linear-gradient(to_right,transparent,var(--rule))] sm:w-12" />
+            <span className="t-fg3 text-[0.65rem] tracking-[0.22em] uppercase sm:text-xs sm:tracking-[0.3em]">
               {wedding.announcement.trailing}
             </span>
-            <span className="h-px w-8 bg-linear-to-l from-transparent to-[rgba(201,169,97,0.75)] sm:w-12" />
+            <span className="h-px w-8 bg-[linear-gradient(to_left,transparent,var(--rule))] sm:w-12" />
           </div>
 
           <p className="font-display text-2xl font-semibold leading-tight sm:text-4xl">
@@ -75,7 +75,7 @@ export function WelcomeMessage() {
 
         {/* Quranic verse */}
         <div className="rv mt-8 sm:mt-10">
-          <p className="font-arabic text-lg leading-loose text-forest sm:text-2xl">
+          <p className="t-fg font-arabic text-lg leading-loose sm:text-2xl">
             {wedding.quran.welcome.arabic}
           </p>
         </div>
@@ -85,10 +85,10 @@ export function WelcomeMessage() {
         </div>
 
         <blockquote className="rv">
-          <p className="font-display text-base italic leading-relaxed text-forest/90 sm:text-xl">
+          <p className="t-fg2 font-display text-base italic leading-relaxed sm:text-xl">
             &ldquo;{wedding.quran.welcome.verse}&rdquo;
           </p>
-          <footer className="mt-3 text-[0.6rem] tracking-[0.26em] uppercase text-gold-deep sm:mt-4 sm:text-[0.68rem] sm:tracking-[0.38em]">
+          <footer className="t-accent mt-3 text-[0.6rem] tracking-[0.26em] uppercase sm:mt-4 sm:text-[0.68rem] sm:tracking-[0.38em]">
             — {wedding.quran.welcome.reference}
           </footer>
         </blockquote>
@@ -97,7 +97,7 @@ export function WelcomeMessage() {
           <GoldDivider />
         </div>
 
-        <p className="rv text-sm leading-relaxed text-forest/80 sm:text-lg">{wedding.invitation}</p>
+        <p className="rv t-fg2 text-sm leading-relaxed sm:text-lg">{wedding.invitation}</p>
       </div>
     </section>
   );

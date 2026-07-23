@@ -55,6 +55,20 @@ Things that must move together:
 - `bride.shortName` / `groom.shortName` feed the `person-card__crest` initial and the finale; `monogram` feeds the curtain seal.
 - `grandparents` is an array of `{ first, second }` pairs — the printed card lists two couples per side without specifying paternal vs maternal, so don't reintroduce those labels.
 
+### The stack
+
+[index.tsx](src/routes/index.tsx) wraps the seven sections in [StackScroll](src/components/shared/StackScroll.tsx). Every section carries `.panel`; each one overlaps the previous by `-2rem` with a rounded top edge and an upward shadow, and a scrubbed ScrollTrigger scales + dims the outgoing panel as the next covers it. Scrolling up reverses it exactly.
+
+The freeze is done by translating the outgoing panel **down by exactly the distance the page scrolls during the handoff**, which cancels the scroll and holds it still — the same result as `position: fixed`, but scoped to the one viewport of scrolling it takes the next panel to cover it.
+
+**That windowing is the whole point, so don't "simplify" it to `position: sticky` or ScrollTrigger's `pin`.** Either of those pins a panel for its full height, which caps it at one viewport of *visible* content — and Welcome, Families and the finale all run two to three screens tall on mobile, so everything below their first screen would become unreachable. Here they scroll normally right up until the handoff. Transforms don't affect layout, so displacing a panel a full screen adds no scroll height.
+
+### Panel theming
+
+A panel declares its own foreground set as CSS custom properties; `.panel--dark` overrides them. Components then use `.t-fg` / `.t-fg2` / `.t-fg3` / `.t-accent` and inherit whichever band they sit in — which is why `SectionLabel`, `SectionTitle` and `ArchOrnament` take no `light` prop. To add a dark section, put `panel panel--dark pat-dark` on it and everything inside recolours itself.
+
+Current rhythm is kraft ↔ black card stock: cover (dark), welcome, families (dark), details, countdown (dark), venue, finale (dark).
+
 ### Page composition
 
 [src/routes/index.tsx](src/routes/index.tsx) is the whole app: `MusicProvider` → `ScrollProgress` → `SmoothScroll` → seven sections → `MusicWidget`. Section order there is the scroll order.
@@ -72,21 +86,13 @@ Follow [WelcomeMessage.tsx](src/components/invitation/WelcomeMessage.tsx) as the
 
 A GSAP tween whose `from` sets a class to `opacity: 0` must be a `fromTo` (its `immediateRender: true` is what keeps children of a revealing panel — `.dt-cell`, `.cnt-cell`, `.fb-wisher` — from flashing before their delayed tween starts).
 
-Light and dark sections alternate (`pat-light` / `pat-dark`), each carrying `seam-top` for the hairline gold rule at the boundary.
+Kraft and black-card panels alternate; see **The stack** and **Panel theming** above.
 
 ### Motion
 
 - Always import GSAP from [src/lib/gsap.ts](src/lib/gsap.ts), never from `gsap` directly — that module is what registers `useGSAP`, `ScrollTrigger`, and `Flip`, exports the shared `REVEAL` preset and `prefersReducedMotion()`, and sets the `motion-ready` class. `index.tsx` side-effect-imports it to guarantee registration order.
-- The curtain in [InvitationCover.tsx](src/components/invitation/InvitationCover.tsx) is one GSAP timeline of seven labelled beats. The detail that makes it read as cloth rather than two sliding panels is beat 5: each `.curtain-fabric` scales toward its outer edge *while* its half translates away, so the pleats gather. Both are transform-only. The timeline `display: none`s `.curtain-stage` on complete, since offstage drapes are pure overdraw.
-- The drapes are pale sage silk. Their pleats are **one irregular multi-stop gradient, not `repeating-linear-gradient`** — evenly spaced folds are the single biggest tell that a CSS curtain is fake. The right panel is mirrored by reversing that gradient's direction. Do not mirror it with `scale: -1 1`: with `transform-origin: right center` that flips the panel clean outside its own `overflow: hidden` (the right half vanishes entirely), and it fights the `scaleX` GSAP writes during the draw.
-
-### Hero background
-
-`.hero-bg` is the reference marble at `background-size: cover`. Because the image is light and its sage veining is locally dark, the invitation sits on `.hero-frame` — a frosted white panel — with `.hero-scrim` lifting the marble underneath. That pairing is what keeps ink text legible wherever the veining happens to fall; don't drop either and put text straight on the photo.
-
-The hero content is in **normal flow with `min-h-svh`**, not `absolute inset-0`. Pinned to exactly one viewport height, the card was clipped at the top on short/landscape viewports; this way the section grows and the page scrolls instead.
-
-`image.png` is a 1.5 MB PNG. It is the largest asset on the site by far and is in the critical path for first paint — worth converting to WebP/AVIF at ~1600px if load time matters.
+- The envelope opening in [EnvelopeCover.tsx](src/components/invitation/EnvelopeCover.tsx) is one GSAP timeline of four labelled beats: the wax gives and falls, the flap hinges back, the letter draws out, then a blurred hand-off from the paper letter to the real card. Blur across that swap is what makes it read as one object resolving rather than two crossfading. The timeline `display: none`s the stage on complete.
+- The envelope and the card it becomes share a single CSS grid cell (`grid-area: 1 / 1`), so the scene is as tall as whichever is bigger and neither is ever clipped. An earlier `absolute inset-0` version cut the card off on short/landscape viewports.
 - [SmoothScroll.tsx](src/components/shared/SmoothScroll.tsx) drives Lenis and pipes `lenis.on("scroll", ScrollTrigger.update)`. It no-ops entirely under reduced motion. Cross-section navigation uses its exported `scrollToSection(id)`.
 
 ### SSR-sensitive components
@@ -95,7 +101,7 @@ The hero content is in **normal flow with `min-h-svh`**, not `absolute inset-0`.
 
 ### Audio
 
-[MusicContext.tsx](src/context/MusicContext.tsx) owns a single Howler instance for `wedding.music.url`. Playback is unlocked only by the user tapping the seal in [InvitationCover.tsx](src/components/invitation/InvitationCover.tsx), which calls `startMusic()` — this is the autoplay-policy gesture, so don't move playback earlier.
+[MusicContext.tsx](src/context/MusicContext.tsx) owns a single Howler instance for `wedding.music.url`. Playback is unlocked only by the user tapping the wax seal in [EnvelopeCover.tsx](src/components/invitation/EnvelopeCover.tsx), which calls `startMusic()` — this is the autoplay-policy gesture, so don't move playback earlier.
 
 ### Styling
 
@@ -103,32 +109,49 @@ Tailwind v4, configured entirely in [src/styles.css](src/styles.css) (`@theme in
 
 | Group | Classes |
 | --- | --- |
-| Layout | `.section-pad` (drives `--section-y` / `--section-x`), `.rv`, `.rv-l`, `.rv-r` |
-| Surfaces | `.page-marble`, `.pat-light`, `.pat-mint`, `.seam-top`, `.card-light`, `.card-mint` |
-| Hero | `.hero-scene`, `.hero-bg`, `.hero-aurora`, `.hero-scrim`, `.hero-vignette`, `.hero-frame`, `.corner-mark--*`, `.scroll-cue` |
-| Cover | `.curtain-stage`, `.curtain-valance`, `.curtain-half`, `.curtain-fabric`, `.curtain-sheen`, `.curtain-edge`, `.curtain-glow`, `.seal`, `.seal__halo`, `.emblem` |
-| Ornament | `.orn-*` (right-hand rule is `.orn-line--rev`), `.arch-ornament`, `.family-link`, `.shimmer` / `.shimmer-light` |
-| Content | `.details-*`, `.detail-cell*`, `.person-card*`, `.count-cell*`, `.venue-map`, `.wisher`, `.signature` |
+| Layout | `.stack`, `.panel`, `.panel--dark`, `.section-pad`, `.rv`, `.rv-l`, `.rv-r` |
+| Surfaces | `.pat-light`, `.pat-mid`, `.pat-dark`, `.paper-grain`, `.card` |
+| Tokens | `.t-fg`, `.t-fg2`, `.t-fg3`, `.t-accent` |
+| Cover | `.env-scene`, `.env-stage`, `.env-slot`, `.envelope`, `.env-body`, `.env-fold--*`, `.env-letter`, `.env-flap`, `.env-flap__face--*`, `.env-seal`, `.env-halo`, `.env-glow`, `.hero-card`, `.corner-mark--*`, `.scroll-cue` |
+| Ornament | `.orn-*` (right-hand rule is `.orn-line--rev`), `.arch-ornament`, `.family-link`, `.shimmer`, `.emblem` |
+| Content | `.details-*`, `.detail-cell*`, `.person-card*`, `.count-cell*`, `.venue-map`, `.signature` |
 | Controls | `.btn-gold`, `.btn-ghost`, `.music-pill`, `.scroll-progress` |
 
 ### Palette
 
-**Every colour is sampled from [public/images/image.png](public/images/image.png)** — the mint-and-gold alcohol-ink marble that is also the hero background. `#f4f4ef` is the image's dominant tone (33% of its pixels) and anchors everything. Re-sample that file rather than inventing new values.
+Three families, taken from the wax-seal envelope reference: **kraft paper**, **black card stock**, **gold**. Nothing else — resist adding a fourth hue.
 
-Neutrals: porcelain `#fbfbf8`, alabaster `#f4f4ef`, mist `#eaf1ea`. Sage ramp `--color-sage-50` `#e4ece4` → `--color-sage-700` `#35735b`. Ink `#22423a`. Gold `#c9a961`, deep gold `#96793a`.
+Kraft `--color-kraft-50` `#f6ecdb` → `--color-kraft-600` `#866a46`. Ink `--color-ink-900` `#16150f` → `--color-ink-600` `#3d382e`. Gold `#c9a44c`, light `#e8cf94`, pale `#f5e6bf`, deep `#785a1d`.
 
-`--color-forest` is kept as an alias of ink purely so existing `text-forest/NN` opacity utilities keep resolving; it is no longer a green.
+Reach for the `.t-*` utilities rather than these directly — the panel decides which end of the ramp applies. `--accent` is `#785a1d` on kraft (4.6:1) and `#e0c07a` on black (9:1); a single gold cannot clear 4.5:1 on both.
 
-### The marble slab
+### The envelope
 
-`.page-marble` is a single `position: fixed` layer holding the reference image, mounted once in [index.tsx](src/routes/index.tsx) with `main` above it at `z-10`. Every band on top is a **translucent wash**, so the stone reads as one continuous surface the content slides over. Per-section backgrounds were the obvious alternative and look worse — the same 1024px tile visibly restarts in every section. `position: fixed` is safe here only because Lenis scrolls the window without a wrapper transform; if `SmoothScroll` ever moves to a transformed wrapper, this layer breaks.
+[EnvelopeCover.tsx](src/components/invitation/EnvelopeCover.tsx) ships **two** envelopes and swaps them at 640px:
 
-The wash opacities (~0.78 light, ~0.76 mint) are a **contrast budget, not a taste setting**. They are set as thin as the text allows: over the marble's darkest sage veining, ink at 80% opacity lands near 5:1. That is why body copy bottoms out at `text-forest/80` — dropping text opacity further, or thinning the wash, pushes small text under 4.5:1. Change the two together or not at all.
+- **Phones** — the supplied artwork, as two keyed plates (`envelope-body`, `envelope-flap`). The flap hinges on its own right edge, `transform-origin: 93.9% 50%`, measured from the plate: its right edge sits at x=884 of 941. The seal hit area is centred on the wax at (355, 836) → `left: 37.7%`. The wrapper carries the plates' native `941 / 1672` aspect so those percentages map to the image and not to the viewport.
+- **Tablet and up** — the CSS/SVG envelope below, since the artwork is 9:16 and would letterbox badly on a wide screen.
 
-**The page has no dark bands.** Both surfaces are light — `.pat-light` (warm alabaster) alternating with `.pat-mint` (mint wash). So:
-- Gold **text** is always `text-gold-deep` (`#96793a`, ~4.9:1). `text-gold` (`#c9a961`) is decoration only — as text on either band it fails WCAG.
-- `SectionLabel`, `SectionTitle`, `RuledLabel` and `ArchOrnament` no longer take a `light` prop; there is nothing dark for them to sit on.
-- `text-gold-soft` and `.shimmer-light` are pale variants left over for use on a dark surface. Nothing uses them. Don't reach for them on a light band.
+Which one is live is a CSS decision (`@media (max-width: 639px)`); `openEnvelope()` mirrors it with `matchMedia` so the timeline drives the envelope the user can actually see. The pocket card behind the photo flap **starts at `opacity: 0`** — the flap is a triangle, so a rectangular card behind it pokes out at the corners while still sealed.
+
+Tapping the seal is also the autoplay gesture that starts the music, so playback must not move earlier.
+
+#### Regenerating the plates
+
+The originals (`Image1.png`, `Image2.png`) are `Format24bppRgb` — **no alpha**; what looks like a transparency checkerboard is painted into the pixels as near-white squares. They are keyed to real alpha by brightness + saturation: the artwork is either strongly coloured (kraft sat≈56, gold sat≈91) or dark (black stock max≈41), the checkerboard is bright and neutral in *two* tones, `#fefefe` and `#f5f5f5`. The bright cutoff has to clear 245 with room — an earlier cutoff of 250 left the darker squares at alpha 25 and the checkerboard stayed faintly visible.
+
+The keyed PNGs are ~4.2 MB for the pair, so they are re-encoded to WebP (~327 KB, 92% smaller) and referenced through `<picture>` with the PNG as fallback. Both steps ran as throwaway scripts against the headless Chrome used for screenshots — there is no image library in the project, and none needs adding.
+
+Three things there are load-bearing:
+- **The flap needs two faces.** A single element with `backface-visibility: hidden` vanishes the moment it rotates past 90°. `.env-flap__face--front` (black) and `--back` (kraft liner, pre-rotated 180°) give it an outside and an inside.
+- **The flap's `z-index` drops mid-tween.** Past halfway it must fall behind the letter, or it keeps painting over it.
+- **The letter is sized by `top`/`bottom`, never `aspect-ratio`.** At a ratio of the envelope's *width* it came out half again as tall as the envelope and stuck out of the top while still sealed.
+
+The seal is flat and matte on purpose: edge darkening plus a bright offset highlight turns it into a gold ball. Wax is a low disc — let the irregular `border-radius` and the cast shadow do the work.
+
+### Paper
+
+`.paper-grain` is one `feTurbulence` tile applied via `::after`, multiply-blended on light panels and overlay on dark. It replaced a 1.5 MB photographic background; keep textures procedural rather than reintroducing a large asset.
 
 Do not name a class `.rev` — that collided with the scroll-reveal class and left the right half of every `GoldDivider` permanently invisible.
 
