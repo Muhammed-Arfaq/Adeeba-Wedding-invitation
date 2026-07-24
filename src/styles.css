@@ -2,37 +2,38 @@
 @source "../src";
 
 /* ─── Design tokens ─────────────────────────────────────────
-   Beige paper, deep navy card stock, and a gold seal. Three
-   families, nothing else — resist adding a fourth hue.
+   A pastel ground, deep forest ink, gold. Three families, nothing
+   else — resist adding a fourth hue.
 
-   The beige ramp is the old kraft ladder at the same lightness but
-   ~30% less saturation and a touch cooler, so it still reads as
-   paper while sitting under navy rather than under black. The navy
-   ramp likewise preserves the ink ladder's lightness exactly: every
-   shadow, inset and gradient in this file was tuned against those
-   values, so moving only the hue keeps all of that depth intact. */
+   The two bands are the pastel pair: sage (hue ~110) and mist (hue
+   ~187), a green and a blue-green. They sit close in lightness on
+   purpose — on a light page a big tonal step between panels reads as
+   a banding artefact, so the seam is carried by the hue shift plus
+   each panel's rounded edge and shadow.
+
+   Gold is the only ornament, and on a light ground it must come from
+   the DEEP end of the ramp: `#e0c07a` and paler vanish here. */
 @theme inline {
-  /* Beige paper */
-  --color-beige-50: #f6f0e3;
-  --color-beige-100: #ece2d0;
-  --color-beige-200: #ded1b9;
-  --color-beige-300: #ccbc9d;
-  --color-beige-400: #b4a181;
-  --color-beige-500: #9a8869;
-  --color-beige-600: #7d6e55;
+  /* Sage — the green band and its tints */
+  --color-sage-50: #f5f9f4;
+  --color-sage-100: #eaf1e8;
+  --color-sage-200: #dde7dc;
+  --color-sage-300: #c7d7c4;
+  --color-sage-400: #a8bfa5;
+  --color-sage-500: #82997f;
+  --color-sage-600: #5f7360;
 
-  /* Navy card stock */
-  --color-navy-600: #253c55;
-  --color-navy-700: #1a2d42;
-  --color-navy-800: #122031;
-  --color-navy-900: #0b1622;
+  /* Mist — the blue-green band. Same lightness ladder, hue swung to 187,
+     which is what gives the deck a hue step rather than a tonal one. */
+  --color-mist-100: #e3edee;
+  --color-mist-200: #d5e4e6;
+  --color-mist-300: #bcd2d5;
+  --color-mist-400: #9bb8bc;
 
-  /* Petrol — the second dark band, so the deck can alternate without ever
-     going light. Hue 196 against navy's 212: close enough to read as the same
-     family, far enough that the seam between two panels is visible. */
-  --color-petrol-700: #12363f;
-  --color-petrol-800: #0b2831;
-  --color-petrol-900: #061a20;
+  /* Ink — deep forest, not black and no longer navy. It is the text and the
+     envelope flap, so the one dark thing on the page matches the type. */
+  --color-ink: #1f3329;
+  --color-ink-deep: #16241d;
 
   /* Gold wax + foil */
   --color-gold: #c9a44c;
@@ -51,10 +52,10 @@
   --e-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --e-silk: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --sh-1: 0 1px 2px rgba(11, 22, 34, 0.05), 0 2px 8px rgba(11, 22, 34, 0.05);
-  --sh-2: 0 2px 4px rgba(11, 22, 34, 0.06), 0 10px 28px rgba(11, 22, 34, 0.09);
-  --sh-3: 0 4px 8px rgba(11, 22, 34, 0.07), 0 20px 52px rgba(11, 22, 34, 0.12);
-  --sh-4: 0 10px 20px rgba(11, 22, 34, 0.09), 0 36px 80px rgba(11, 22, 34, 0.16);
+  --sh-1: 0 1px 2px rgba(22, 36, 29, 0.05), 0 2px 8px rgba(22, 36, 29, 0.05);
+  --sh-2: 0 2px 4px rgba(22, 36, 29, 0.06), 0 10px 28px rgba(22, 36, 29, 0.09);
+  --sh-3: 0 4px 8px rgba(22, 36, 29, 0.07), 0 20px 52px rgba(22, 36, 29, 0.12);
+  --sh-4: 0 10px 20px rgba(22, 36, 29, 0.09), 0 36px 80px rgba(22, 36, 29, 0.16);
 
   --section-y: 5rem;
   --section-x: 1.25rem;
@@ -73,27 +74,31 @@
 }
 
 /* ─── Panel theming ──────────────────────────────────────────
-   Every band is dark now — navy or petrol — so there is only one foreground
-   set and components still never need a light/dark prop; they use
-   .t-fg / .t-fg2 / .t-accent and inherit it.
+   Every band is a pastel now, so there is one foreground set and components never
+   need a light/dark prop; they use .t-fg / .t-fg2 / .t-accent and inherit it.
 
-   `.panel--dark` is kept, declaring the same values, and every panel still
-   carries it. It is not decoration: a pile of rules select through it
-   (`.panel--dark .card`, `.panel--dark .count-cell`,
-   `.panel--dark .paper-grain::after`, `.panel--dark .shimmer`), and it is the
-   hook to restore a light band with if one is ever wanted again. */
-.panel,
-.panel--dark {
-  /* Text is warm and pale rather than white — a gold-lit cream that belongs
-     to the same ramp as the accent, so nothing on the page is a neutral. */
-  --fg: #f2e8d2;
-  --fg-2: rgba(242, 232, 210, 0.8);
-  --fg-3: rgba(242, 232, 210, 0.62);
-  --accent: #e0c07a;
-  --rule: rgba(224, 192, 122, 0.45);
-  --rule-soft: rgba(224, 192, 122, 0.2);
-  --card: rgba(255, 255, 255, 0.05);
-  --card-border: rgba(224, 192, 122, 0.28);
+   `.panel--dark` is no longer on any panel, but its rules are kept: they are a
+   complete, working dark treatment for `.paper-grain`, `.shimmer`, `.card` and
+   `.count-cell`, and re-adding the class to a section is all it takes to get a
+   dark band back. Deleting them would throw that away for no gain. */
+.panel {
+  /* Ink, not black — the same forest the envelope flap is cut from, so the
+     one dark thing on the page and the text belong to each other. */
+  --fg: #1f3329;
+  --fg-2: rgba(31, 51, 41, 0.78);
+  /* 0.70, not the dark theme's 0.62. Ink at 62% over a pastel lands under —
+     under AA for the small uppercase labels that use it. Light grounds are
+     less forgiving here than dark ones: pale text on a dark band gains
+     contrast as it fades toward the accent, dark text on a light band just
+     washes out. */
+  --fg-3: rgba(31, 51, 41, 0.7);
+  /* Deep gold. On a light ground the pale `#e0c07a` used by the dark theme
+     falls to ~1.5:1 and disappears; this clears AA on both bands. */
+  --accent: #6f5318;
+  --rule: rgba(111, 83, 24, 0.38);
+  --rule-soft: rgba(111, 83, 24, 0.16);
+  --card: rgba(255, 255, 255, 0.8);
+  --card-border: rgba(111, 83, 24, 0.2);
 
   /* ── Glass ──
      One recipe, used by every raised surface. Deliberately built WITHOUT
@@ -102,20 +107,25 @@
      most expensive thing this page ever did — it is what the whole composited
      handoff exists to avoid. The backdrops here are smooth gradients plus a
      grain tile, so an actual blur would return very nearly the same pixels it
-     was given; the glass reads instead from translucency, a top-lit sheen, a
-     gold hairline and an inset highlight. `.music-pill` is the one exception
-     and may keep a real blur — it is `position: fixed` and never scrubbed. */
+     was given. `.music-pill` is the one exception and may keep a real blur —
+     it is `position: fixed` and never scrubbed.
+
+     Light glass inverts the dark recipe rather than reusing it: the fill is
+     near-opaque WHITE over a tinted band (not white-at-8%-over-dark), the
+     shadow is wide and faint instead of deep and black, and the lift comes
+     from the band around it being tinted where the pane is white. The sheen
+     stays — it is what reads as a lit pane rather than a flat rectangle. */
   --glass: linear-gradient(
     168deg,
-    rgba(255, 255, 255, 0.085) 0%,
-    rgba(255, 255, 255, 0.03) 48%,
-    rgba(255, 255, 255, 0.055) 100%
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.7) 48%,
+    rgba(255, 255, 255, 0.84) 100%
   );
-  --glass-border: rgba(224, 192, 122, 0.28);
-  --glass-hi: rgba(255, 255, 255, 0.14);
+  --glass-border: rgba(111, 83, 24, 0.2);
+  --glass-hi: rgba(255, 255, 255, 0.95);
   --glass-shadow:
-    0 1px 0 var(--glass-hi) inset, 0 -1px 0 rgba(0, 0, 0, 0.22) inset,
-    0 10px 24px rgba(0, 0, 0, 0.28), 0 28px 64px rgba(0, 0, 0, 0.3);
+    0 1px 0 var(--glass-hi) inset, 0 -1px 0 rgba(111, 83, 24, 0.07) inset,
+    0 8px 20px rgba(31, 51, 41, 0.06), 0 26px 60px rgba(31, 51, 41, 0.08);
 }
 
 .t-fg {
@@ -136,14 +146,14 @@
   html {
     scroll-behavior: auto;
     -webkit-text-size-adjust: 100%;
-    background: #0b1622;
+    background: #e6eee5;
   }
   body {
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    background: #0b1622;
-    color: #f2e8d2;
+    background: #e6eee5;
+    color: #1f3329;
     overflow-x: hidden;
   }
   * {
@@ -151,10 +161,10 @@
   }
   ::selection {
     background: rgba(201, 164, 76, 0.35);
-    color: #0b1622;
+    color: #1f3329;
   }
   :focus-visible {
-    outline: 2px solid var(--accent, #e0c07a);
+    outline: 2px solid var(--accent, #6f5318);
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -302,7 +312,7 @@ html.scroll-locked body {
   border-radius: 2rem 2rem 0 0;
   box-shadow:
     0 -2px 0 rgba(255, 255, 255, 0.06),
-    0 -22px 50px rgba(11, 22, 34, 0.4);
+    0 -22px 50px rgba(22, 36, 29, 0.4);
 }
 
 /* No overlap at the cover → first-section boundary. The -2rem above pulls the
@@ -327,26 +337,20 @@ html.scroll-locked body {
 }
 
 /* Surfaces
-   Two dark bands, alternating: navy, petrol, navy, petrol. There is no light
-   band any more — the deck reads as one dark room, and the separation that
-   used to come from a light/dark flip now comes from the hue step plus each
-   panel's rounded top edge and upward shadow. Every raised surface on top of
-   them is glass, so the contrast in the design is glass-against-band rather
-   than paper-against-wall. */
-.pat-petrol {
-  background-color: #0b2831;
+   The pastel pair. Close in lightness, a step apart in hue — see the note in
+   the token block about why a big tonal step is wrong on a light page. */
+.pat-sage {
+  background-color: #eaf1e8;
   background-image:
-    radial-gradient(ellipse 66% 44% at 50% 0%, rgba(201, 164, 76, 0.13) 0%, transparent 62%),
-    radial-gradient(ellipse 60% 44% at 82% 92%, rgba(18, 54, 63, 0.95) 0%, transparent 64%),
-    linear-gradient(170deg, #061a20 0%, #10323c 48%, #071e25 100%);
+    radial-gradient(ellipse 70% 46% at 20% 4%, rgba(255, 255, 255, 0.92) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 44% at 86% 92%, rgba(168, 191, 165, 0.34) 0%, transparent 62%);
 }
 
-.pat-dark {
-  background-color: #122031;
+.pat-mist {
+  background-color: #e3edee;
   background-image:
-    radial-gradient(ellipse 66% 44% at 50% 0%, rgba(201, 164, 76, 0.14) 0%, transparent 62%),
-    radial-gradient(ellipse 60% 44% at 16% 92%, rgba(37, 60, 85, 0.9) 0%, transparent 64%),
-    linear-gradient(170deg, #0b1622 0%, #14263a 46%, #0e1b2b 100%);
+    radial-gradient(ellipse 66% 44% at 82% 6%, rgba(255, 255, 255, 0.9) 0%, transparent 62%),
+    radial-gradient(ellipse 58% 42% at 14% 88%, rgba(155, 184, 188, 0.32) 0%, transparent 62%);
 }
 
 /* ─── Typography ─────────────────────────────────────────── */
@@ -412,8 +416,10 @@ html.scroll-locked body {
   width: 100%;
   transform-origin: 0 50%;
   transform: scaleX(0);
-  background: linear-gradient(to right, #785a1d, #c9a44c 38%, #f5e6bf 68%, #c9a44c);
-  box-shadow: 0 0 12px rgba(201, 164, 76, 0.55);
+  /* No pale stop: `#f5e6bf` on ivory is a gap in the bar. Runs deep gold to
+     mid gold and back, which stays legible across the whole width. */
+  background: linear-gradient(to right, #6f5318, #a8842f 38%, #c9a44c 68%, #8a6a2a);
+  box-shadow: 0 1px 6px rgba(111, 83, 24, 0.35);
 }
 
 /* ═══ ENVELOPE ═══════════════════════════════════════════════ */
@@ -438,11 +444,14 @@ html.scroll-locked body {
   --env-vh: min(100svh, var(--app-height, 100svh));
   padding: 1.5rem;
   overflow: hidden;
-  background-color: #122031;
+  background-color: #dde7dc;
+  /* A little deeper than either band, with a soft vignette at the foot: the
+     envelope is a pale sage and would sit almost invisibly on the lightest
+     ground. The scene has to give it something to lie on. */
   background-image:
-    radial-gradient(ellipse 60% 50% at 50% 42%, rgba(201, 164, 76, 0.16) 0%, transparent 66%),
-    radial-gradient(ellipse 90% 70% at 50% 108%, rgba(11, 22, 34, 0.9) 0%, transparent 60%),
-    linear-gradient(165deg, #0b1622 0%, #1a2d42 48%, #0b1622 100%);
+    radial-gradient(ellipse 62% 52% at 50% 40%, rgba(255, 255, 255, 0.88) 0%, transparent 66%),
+    radial-gradient(ellipse 95% 72% at 50% 110%, rgba(130, 153, 127, 0.42) 0%, transparent 62%),
+    linear-gradient(165deg, #eef4ed 0%, #dbe6da 48%, #eaf1e9 100%);
 }
 
 /* Warm pool of light under the envelope */
@@ -457,7 +466,7 @@ html.scroll-locked body {
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgba(201, 164, 76, 0.2) 0%,
+    rgba(201, 164, 76, 0.16) 0%,
     rgba(201, 164, 76, 0.07) 34%,
     transparent 64%
   );
@@ -574,9 +583,9 @@ html.scroll-locked body {
   left: 34%;
   right: 8%;
   border-radius: 3px;
-  background-image: linear-gradient(168deg, #16293c 0%, #0e2029 55%, #081b22 100%);
-  border: 1px solid rgba(224, 192, 122, 0.3);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  background-image: linear-gradient(168deg, #ffffff 0%, #f6faf5 55%, #e9f1e7 100%);
+  border: 1px solid rgba(111, 83, 24, 0.24);
+  box-shadow: 0 6px 18px rgba(31, 51, 41, 0.22);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -629,7 +638,11 @@ html.scroll-locked body {
   font-size: 0.64rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(240, 220, 170, 0.95);
+  /* This rule out-specifies `.env-hint` (see the note above about the in-flow
+     hint), so it needs the colour fix too — fixing only `.env-hint` leaves the
+     phone hint, the one most people actually see, pale gold on ivory. */
+  color: var(--accent);
+  font-weight: 600;
 }
 
 /* Swap the CSS envelope for the artwork on phones */
@@ -680,14 +693,14 @@ html.scroll-locked body {
   z-index: 1;
   border-radius: 5px;
   overflow: hidden;
-  background-color: #ccbc9d;
+  background-color: #c9d8c6;
   background-image:
-    linear-gradient(158deg, #ded1b9 0%, #ccbc9d 46%, #b4a181 100%),
+    linear-gradient(158deg, #dfe9dd 0%, #c9d8c6 46%, #a9c0a6 100%),
     radial-gradient(ellipse 60% 50% at 30% 20%, rgba(246, 240, 227, 0.5), transparent 60%);
   box-shadow:
-    0 2px 3px rgba(11, 22, 34, 0.3),
-    0 26px 50px rgba(11, 22, 34, 0.55),
-    0 60px 100px rgba(11, 22, 34, 0.4),
+    0 2px 3px rgba(22, 36, 29, 0.3),
+    0 26px 50px rgba(22, 36, 29, 0.55),
+    0 60px 100px rgba(22, 36, 29, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -701,18 +714,18 @@ html.scroll-locked body {
 }
 .env-fold--left {
   clip-path: polygon(0 0, 50% 47%, 0 100%);
-  background: linear-gradient(100deg, #d5c6a9 0%, #c0af92 70%, #ab9a7b 100%);
-  box-shadow: inset -1px 0 2px rgba(11, 22, 34, 0.16);
+  background: linear-gradient(100deg, #d7e4d4 0%, #bfd0bc 70%, #a3baa0 100%);
+  box-shadow: inset -1px 0 2px rgba(22, 36, 29, 0.16);
 }
 .env-fold--right {
   clip-path: polygon(100% 0, 50% 47%, 100% 100%);
-  background: linear-gradient(260deg, #d5c6a9 0%, #c0af92 70%, #ab9a7b 100%);
-  box-shadow: inset 1px 0 2px rgba(11, 22, 34, 0.16);
+  background: linear-gradient(260deg, #d7e4d4 0%, #bfd0bc 70%, #a3baa0 100%);
+  box-shadow: inset 1px 0 2px rgba(22, 36, 29, 0.16);
 }
 .env-fold--bottom {
   clip-path: polygon(0 100%, 50% 46%, 100% 100%);
-  background: linear-gradient(0deg, #d8c9ad 0%, #c9ba9c 62%, #b9a889 100%);
-  filter: drop-shadow(0 -2px 3px rgba(11, 22, 34, 0.2));
+  background: linear-gradient(0deg, #dae6d8 0%, #c5d5c2 62%, #b0c6ad 100%);
+  filter: drop-shadow(0 -2px 3px rgba(22, 36, 29, 0.2));
 }
 
 /* The letter that rises out. Sized by top/bottom rather than an aspect
@@ -733,12 +746,12 @@ html.scroll-locked body {
   gap: 0.5rem;
   padding: 1.75rem 1.25rem;
   text-align: center;
-  background-color: #0e2029;
-  background-image: linear-gradient(170deg, #16293c 0%, #0e2029 55%, #081b22 100%);
+  background-color: #f6faf5;
+  background-image: linear-gradient(170deg, #ffffff 0%, #f6faf5 55%, #e9f1e7 100%);
   border: 1px solid rgba(224, 192, 122, 0.22);
   box-shadow:
-    0 -2px 6px rgba(11, 22, 34, 0.18),
-    0 20px 44px rgba(11, 22, 34, 0.4);
+    0 -2px 6px rgba(22, 36, 29, 0.18),
+    0 20px 44px rgba(22, 36, 29, 0.4);
   will-change: transform;
 }
 
@@ -766,16 +779,16 @@ html.scroll-locked body {
   -webkit-backface-visibility: hidden;
 }
 .env-flap__face--front {
-  background-color: #122031;
+  background-color: #1d3529;
   background-image:
-    linear-gradient(178deg, #1e3248 0%, #122031 46%, #0b1622 100%),
+    linear-gradient(178deg, #2c4a39 0%, #1d3529 46%, #12241b 100%),
     radial-gradient(ellipse 50% 60% at 50% 0%, rgba(201, 164, 76, 0.1), transparent 70%);
-  filter: drop-shadow(0 5px 12px rgba(11, 22, 34, 0.5));
+  filter: drop-shadow(0 5px 12px rgba(18, 36, 27, 0.5));
 }
 .env-flap__face--back {
   transform: rotateX(180deg);
-  background-image: linear-gradient(178deg, #b4a181 0%, #ccbc9d 42%, #dbccb0 100%);
-  filter: drop-shadow(0 -4px 10px rgba(11, 22, 34, 0.35));
+  background-image: linear-gradient(178deg, #a9c0a6 0%, #c9d8c6 42%, #dbe7d9 100%);
+  filter: drop-shadow(0 -4px 10px rgba(22, 36, 29, 0.35));
 }
 
 /* Gold wax seal */
@@ -805,8 +818,8 @@ html.scroll-locked body {
   box-shadow:
     inset 0 1px 1px rgba(255, 248, 226, 0.4),
     inset 0 -2px 4px rgba(84, 62, 18, 0.26),
-    0 2px 3px rgba(11, 22, 34, 0.45),
-    0 8px 18px rgba(11, 22, 34, 0.5),
+    0 2px 3px rgba(22, 36, 29, 0.45),
+    0 8px 18px rgba(22, 36, 29, 0.5),
     0 0 30px rgba(201, 164, 76, 0.22);
   transition: transform 160ms var(--e-out);
   will-change: transform;
@@ -868,28 +881,25 @@ html.scroll-locked body {
   font-size: 0.55rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(232, 207, 148, 0.85);
+  /* Was `rgba(232, 207, 148, 0.85)` — light gold, invisible on the ivory
+     cover. This is the only call-to-action on the sealed screen, so it takes
+     the accent at full strength rather than a tint of it. */
+  color: var(--accent);
+  font-weight: 600;
 }
 
 /* ─── Hero card (what the letter becomes) ────────────────── */
 .hero-card {
   position: relative;
   border-radius: 1.25rem;
-  /* A shade denser than the other glass — it is the first thing seen after
-     the envelope opens, and it has to hold its own over the cover's glow and
-     particles rather than letting them read through it. */
-  background-image:
-    linear-gradient(
-      168deg,
-      rgba(255, 255, 255, 0.1) 0%,
-      rgba(255, 255, 255, 0.035) 50%,
-      rgba(255, 255, 255, 0.07) 100%
-    ),
-    linear-gradient(168deg, rgba(18, 32, 49, 0.82) 0%, rgba(6, 26, 32, 0.86) 100%);
-  border: 1px solid rgba(224, 192, 122, 0.34);
+  /* Denser and whiter than the other glass — it is the first thing seen after
+     the envelope opens, sitting on the cover's own tinted ground, and it has
+     to read as the card rather than as a pane over the scene. */
+  background-image: linear-gradient(168deg, #ffffff 0%, #f7fbf6 52%, #eaf2e8 100%);
+  border: 1px solid rgba(111, 83, 24, 0.26);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 30px 80px rgba(0, 0, 0, 0.5);
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 24px 60px rgba(31, 51, 41, 0.16);
   overflow: hidden;
 }
 .hero-card::after {
@@ -897,7 +907,7 @@ html.scroll-locked body {
   position: absolute;
   inset: 9px;
   border-radius: 0.9rem;
-  border: 1px solid rgba(224, 192, 122, 0.22);
+  border: 1px solid rgba(111, 83, 24, 0.18);
   pointer-events: none;
 }
 
@@ -1033,6 +1043,7 @@ html.scroll-locked body {
 
 /* ─── Cards ──────────────────────────────────────────────── */
 .card,
+/* Unused while the deck is light — see the note in Panel theming. */
 .panel--dark .card {
   position: relative;
   background: var(--glass);
@@ -1169,7 +1180,13 @@ html.scroll-locked body {
   position: absolute;
   bottom: -10px;
   border-radius: 50%;
-  background: radial-gradient(circle, #f5e6bf 0%, rgba(201, 164, 76, 0.5) 55%, transparent 100%);
+  /* Deep gold, not pale — `#f5e6bf` on ivory is invisible. */
+  background: radial-gradient(
+    circle,
+    rgba(160, 124, 44, 0.6) 0%,
+    rgba(111, 83, 24, 0.3) 55%,
+    transparent 100%
+  );
   animation: particle-rise linear infinite;
   /* No `will-change` here — it was twelve permanently promoted layers inside
      the finale, and when the stack scales that panel the raster scale of every
@@ -1205,9 +1222,9 @@ html.scroll-locked body {
   gap: 0.5rem;
   min-height: 44px;
   padding: 0.6rem 1rem 0.6rem 0.8rem;
-  color: #f2e8d2;
-  background: rgba(18, 32, 49, 0.9);
-  border: 1px solid rgba(201, 164, 76, 0.5);
+  color: #1f3329;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(111, 83, 24, 0.3);
   border-radius: 9999px;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -1217,7 +1234,7 @@ html.scroll-locked body {
     transform 160ms var(--e-out),
     box-shadow 0.3s ease,
     border-color 0.3s ease;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(31, 51, 41, 0.14);
 }
 .music-pill:active {
   transform: scale(0.96);
@@ -1283,7 +1300,7 @@ html.scroll-locked body {
   color: #2a1f08;
   background: radial-gradient(circle at 34% 28%, #f7e9c2, #e8cf94 30%, #c9a44c 66%, #8a6a2a);
   box-shadow:
-    0 8px 20px rgba(11, 22, 34, 0.28),
+    0 8px 20px rgba(22, 36, 29, 0.28),
     0 0 24px rgba(201, 164, 76, 0.3),
     inset 0 1px 3px rgba(255, 255, 255, 0.7);
 }
@@ -1568,16 +1585,16 @@ html.scroll-locked body {
   left: 0;
   right: 0;
   height: 1px;
-  background: rgba(0, 0, 0, 0.32);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.09);
+  background: rgba(111, 83, 24, 0.16);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 .count-cell__num {
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 6.4vw, 2.9rem);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: #f5e6bf;
-  text-shadow: 0 2px 16px rgba(201, 164, 76, 0.4);
+  color: var(--fg);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 .count-label {
   margin-top: 0.65rem;
@@ -1601,7 +1618,7 @@ html.scroll-locked body {
 }
 /* Muted to sit inside the card. No hue-rotate — it swings water purple. */
 .venue-map iframe {
-  filter: saturate(0.55) sepia(0.22) brightness(0.82) contrast(1.04) invert(0.9) hue-rotate(180deg);
+  filter: saturate(0.62) sepia(0.18) brightness(1.03) contrast(0.98);
 }
 .venue-map::after {
   content: "";
@@ -1610,10 +1627,10 @@ html.scroll-locked body {
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(11, 22, 34, 0.1) 0%,
+    rgba(22, 36, 29, 0.1) 0%,
     transparent 20%,
     transparent 78%,
-    rgba(6, 26, 32, 0.5) 100%
+    rgba(234, 241, 232, 0.6) 100%
   );
 }
 

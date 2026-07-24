@@ -29,7 +29,7 @@ export function FinalBlessing() {
       ref={rootRef}
       id="finale"
       aria-label="Closing blessing"
-      className="panel panel--dark pat-petrol paper-grain section-pad relative overflow-hidden text-center"
+      className="panel pat-sage paper-grain section-pad relative overflow-hidden text-center"
     >
       {/* Ambient gold glow rising from the foot of the page */}
       <div
@@ -37,7 +37,7 @@ export function FinalBlessing() {
         aria-hidden
         style={{
           background:
-            "radial-gradient(ellipse 70% 50% at 50% 88%, rgba(201,164,76,0.2) 0%, transparent 62%)",
+            "radial-gradient(ellipse 70% 50% at 50% 88%, rgba(201,164,76,0.16) 0%, transparent 62%)",
         }}
       />
 

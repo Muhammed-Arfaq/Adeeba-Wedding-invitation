@@ -172,7 +172,7 @@ export function WeddingDetails() {
       ref={rootRef}
       id="details"
       aria-label="The families, the ceremony and the venue"
-      className="panel panel--dark pat-petrol paper-grain section-pad"
+      className="panel pat-sage paper-grain section-pad"
     >
       <div className="mx-auto max-w-4xl">
         <div className="rv fam-rv text-center">

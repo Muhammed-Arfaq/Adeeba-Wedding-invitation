@@ -107,7 +107,7 @@ export function CountdownSection() {
       ref={rootRef}
       id="countdown"
       aria-label="Countdown to the wedding"
-      className="panel panel--dark pat-dark paper-grain section-pad"
+      className="panel pat-mist paper-grain section-pad"
     >
       <div className="mx-auto max-w-2xl">
         <div className="rv text-center">

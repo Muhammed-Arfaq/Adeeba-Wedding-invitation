@@ -256,7 +256,7 @@ export function EnvelopeCover() {
       ref={rootRef}
       id="cover"
       aria-label="Invitation cover"
-      className={`panel panel--dark env-scene paper-grain${opened ? "" : " env-sealed"}`}
+      className={`panel env-scene paper-grain${opened ? "" : " env-sealed"}`}
     >
       <div className="env-glow" aria-hidden />
       <Particles />
