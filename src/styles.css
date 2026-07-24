@@ -54,6 +54,12 @@
 
   --section-y: 5rem;
   --section-x: 1.25rem;
+
+  /* How far each panel is pulled up over the one before it. Read by BOTH
+     `.panel + .panel`'s negative margin and `.panel`'s min-height, which have
+     to agree exactly or a panel's handoff stops starting on its own top —
+     hence the variable rather than two hard-coded `2rem`s. */
+  --panel-overlap: 2rem;
 }
 
 @media (min-width: 640px) {
@@ -204,6 +210,29 @@ html.motion-ready .rv-r {
   position: relative;
   isolation: isolate;
   transform-origin: 50% 0%;
+  /* No panel may be shorter than the screen, and this is structural rather
+     than cosmetic.
+
+     A panel's handoff runs from `docTop(next) - viewport` to `docTop(next)`.
+     If the panel is SHORTER than the viewport, that start lands *above its
+     own top* — so by the time its top reaches the top of the screen the
+     handoff is already part-done and the next panel is already covering it.
+     The countdown was 441px against an 844px viewport and was half-buried
+     under the finale the whole time it was on screen; it could never be read.
+
+     The minimum is a screen PLUS `--panel-overlap`, not a screen. Each panel
+     is pulled up over the last by that much (`.panel + .panel`), so the next
+     panel's document top — and therefore this one's handoff start — sits an
+     overlap ABOVE where the panel ends. At a flat `100svh` the countdown's
+     handoff still began 32px early; adding the overlap back makes the start
+     land exactly on the panel's own top. That is what lets the guided scroll
+     pause on a top and find the panel composed and untransformed.
+
+     `svh` (not `vh`/`dvh`) is the URL-bar-shown height, matching
+     `.env-scene`; StackScroll's `clamp(top bottom)` and its
+     `min(innerHeight, …)` travel already handle the svh-vs-innerHeight
+     mismatch that follows. */
+  min-height: calc(100svh + var(--panel-overlap));
   /* No permanent `will-change`: promoting every full-screen panel to a GPU
      layers at once strains mobile GPUs and can itself flicker. StackScroll's
      `force3D` promotes only the one panel currently animating. */
@@ -307,7 +336,7 @@ html.scroll-locked body {
 }
 
 .panel + .panel {
-  margin-top: -2rem;
+  margin-top: calc(-1 * var(--panel-overlap));
   border-radius: 2rem 2rem 0 0;
   box-shadow:
     0 -2px 0 rgba(255, 255, 255, 0.06),

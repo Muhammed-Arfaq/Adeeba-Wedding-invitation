@@ -108,13 +108,17 @@ export function CountdownSection() {
       ref={rootRef}
       id="countdown"
       aria-label="Countdown to the wedding"
-      className="panel panel--dark pat-midnight paper-grain section-pad"
+      className="panel panel--dark pat-midnight paper-grain section-pad flex items-center"
     >
       <Particles />
 
       {/* `relative` is load-bearing: `.particles` is absolutely positioned, so
-          static content would paint underneath it. */}
-      <div className="relative mx-auto max-w-2xl">
+          static content would paint underneath it.
+
+          This panel's content is much shorter than the screen it now has to
+          fill (see the `min-height` note on `.panel`), so it is centred in it
+          rather than sitting at the top above a screenful of empty band. */}
+      <div className="relative mx-auto w-full max-w-2xl">
         <div className="rv text-center">
           <SectionLabel>Mark Your Calendar</SectionLabel>
         </div>
