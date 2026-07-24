@@ -7,6 +7,7 @@ import {
   SectionTitle,
   ArchOrnament,
 } from "@/components/shared/GoldDivider";
+import { Particles } from "@/components/shared/Particles";
 
 /* The date is a constant, so resolve it once rather than per render. */
 const TARGET = new Date(wedding.weddingDate).getTime();
@@ -100,8 +101,8 @@ export function CountdownSection() {
     { scope: rootRef },
   );
 
-  /* Navy, between two petrol bands — the deck alternates navy/petrol and never
-     goes light. See the `Surfaces` block in styles.css. */
+  /* Mist, between two sage bands — the deck alternates sage/mist. See the
+     `Surfaces` block in styles.css. */
   return (
     <section
       ref={rootRef}
@@ -109,7 +110,11 @@ export function CountdownSection() {
       aria-label="Countdown to the wedding"
       className="panel pat-mist paper-grain section-pad"
     >
-      <div className="mx-auto max-w-2xl">
+      <Particles />
+
+      {/* `relative` is load-bearing: `.particles` is absolutely positioned, so
+          static content would paint underneath it. */}
+      <div className="relative mx-auto max-w-2xl">
         <div className="rv text-center">
           <SectionLabel>Mark Your Calendar</SectionLabel>
         </div>

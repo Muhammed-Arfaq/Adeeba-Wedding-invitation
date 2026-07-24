@@ -8,6 +8,7 @@ import {
   SectionLabel,
   SectionTitle,
 } from "@/components/shared/GoldDivider";
+import { Particles } from "@/components/shared/Particles";
 import {
   HiOutlineBuildingOffice2,
   HiOutlineCalendarDays,
@@ -174,7 +175,11 @@ export function WeddingDetails() {
       aria-label="The families, the ceremony and the venue"
       className="panel pat-sage paper-grain section-pad"
     >
-      <div className="mx-auto max-w-4xl">
+      <Particles />
+
+      {/* `relative` is load-bearing: `.particles` is absolutely positioned, so
+          static content would paint underneath it. */}
+      <div className="relative mx-auto max-w-4xl">
         <div className="rv fam-rv text-center">
           <SectionLabel>Our Families</SectionLabel>
         </div>

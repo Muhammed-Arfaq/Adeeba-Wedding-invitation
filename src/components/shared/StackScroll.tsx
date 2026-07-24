@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { gsap, useGSAP, ScrollTrigger, prefersReducedMotion } from "@/lib/gsap";
 
 /**
@@ -19,6 +19,35 @@ import { gsap, useGSAP, ScrollTrigger, prefersReducedMotion } from "@/lib/gsap";
  */
 export function StackScroll({ children }: { children: ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
+
+  /* Mark panels that are nowhere near the viewport, so `.panel--idle` can stop
+     their ambient loops — see the note beside that rule in styles.css. Every
+     panel now carries drifting dust, and each mote is a composited layer while
+     it animates; without this, panels three screens away were paying for
+     layers nobody could see, and the guided scroll measured 16 frames over
+     33ms instead of 2.
+
+     Deliberately NOT inside the `useGSAP` below, which early-returns under
+     reduced motion — and deliberately not pre-marking every panel idle, since
+     the observer's first callback lands a frame later and that would flash the
+     cover's dust off and straight back on. */
+  useEffect(() => {
+    const panels = Array.from(
+      rootRef.current?.querySelectorAll<HTMLElement>(":scope > .panel") ?? [],
+    );
+    if (!panels.length || typeof IntersectionObserver === "undefined") return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) e.target.classList.toggle("panel--idle", !e.isIntersecting);
+      },
+      /* Half a viewport of lead-in, so dust is already drifting by the time a
+         panel is scrolled to rather than starting as you arrive. */
+      { rootMargin: "50% 0px 50% 0px" },
+    );
+    panels.forEach((p) => io.observe(p));
+    return () => io.disconnect();
+  }, []);
 
   useGSAP(
     () => {

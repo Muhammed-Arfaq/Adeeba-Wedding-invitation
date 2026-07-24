@@ -286,10 +286,23 @@ html.motion-ready .rv-r {
    every frame, forever. All of these are slow ambient loops (7s sheen, 40s
    ring, 11–17s dust); holding them for the one viewport of scrolling a handoff
    lasts is imperceptible, and it is what lets the panel raster once. */
+/* `.panel--idle` extends the same idea from "this panel is mid-handoff" to
+   "this panel is nowhere near the viewport", and it is what makes ambient dust
+   on EVERY panel affordable. StackScroll sets it from an IntersectionObserver.
+
+   Measured, driving the guided scroll with a CDP harness: dust on all four
+   panels took frames over 33ms from 2 to 16 and p99 from 19.6ms to 40.1ms,
+   because every mote is a composited layer while it animates and off-screen
+   panels were paying for layers nobody could see. Gating on visibility puts it
+   back. Any new infinite animation inside a panel belongs in this list. */
 .panel--handoff .shimmer,
 .panel--handoff .emblem__ring--outer,
 .panel--handoff .particle,
-.panel--handoff .scroll-cue__line {
+.panel--handoff .scroll-cue__line,
+.panel--idle .shimmer,
+.panel--idle .emblem__ring--outer,
+.panel--idle .particle,
+.panel--idle .scroll-cue__line {
   animation-play-state: paused;
 }
 
@@ -1178,14 +1191,21 @@ html.scroll-locked body {
 }
 .particle {
   position: absolute;
-  bottom: -10px;
+  /* Start height, set per mote — see the note in Particles.tsx about why a
+     fixed foot doesn't work once a panel is taller than the viewport. */
+  bottom: var(--y0, -10px);
   border-radius: 50%;
-  /* Deep gold, not pale — `#f5e6bf` on ivory is invisible. */
+  /* Deep gold, not pale — `#f5e6bf` on a pastel is invisible. The alphas are
+     higher and the falloff tighter than the dark theme's: a mote on a dark
+     band reads from its own glow, while on a light band it has to read as a
+     small solid form or it disappears into the paper. `transparent 100%` in
+     particular spread the little colour there is across the whole radius and
+     left nothing but a smudge. */
   background: radial-gradient(
     circle,
-    rgba(160, 124, 44, 0.6) 0%,
-    rgba(111, 83, 24, 0.3) 55%,
-    transparent 100%
+    rgba(150, 116, 40, 0.85) 0%,
+    rgba(111, 83, 24, 0.42) 52%,
+    transparent 76%
   );
   animation: particle-rise linear infinite;
   /* No `will-change` here — it was twelve permanently promoted layers inside
