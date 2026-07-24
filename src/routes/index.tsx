@@ -1,11 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { EnvelopeCover } from "@/components/invitation/EnvelopeCover";
 import { StackScroll } from "@/components/shared/StackScroll";
-import { WelcomeMessage } from "@/components/invitation/WelcomeMessage";
-import { FamilyDetails } from "@/components/invitation/FamilyDetails";
 import { WeddingDetails } from "@/components/invitation/WeddingDetails";
 import { CountdownSection } from "@/components/invitation/CountdownSection";
-import { VenueExperience } from "@/components/invitation/VenueExperience";
 import { FinalBlessing } from "@/components/invitation/FinalBlessing";
 import { SmoothScroll } from "@/components/shared/SmoothScroll";
 import { ScrollProgress } from "@/components/shared/ScrollProgress";
@@ -56,11 +53,8 @@ function Index() {
               so the deck reads as kraft paper interleaved with black card. */}
           <StackScroll>
             <EnvelopeCover />
-            <WelcomeMessage />
-            <FamilyDetails />
             <WeddingDetails />
             <CountdownSection />
-            <VenueExperience />
             <FinalBlessing />
           </StackScroll>
         </main>

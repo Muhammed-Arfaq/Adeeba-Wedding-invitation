@@ -65,7 +65,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: wedding.meta.title },
       { name: "description", content: wedding.meta.description },
-      { name: "theme-color", content: "#0c3620" },
+      { name: "theme-color", content: "#0b1622" },
       { property: "og:title", content: wedding.meta.ogTitle },
       { property: "og:description", content: wedding.meta.ogDescription },
       { property: "og:type", content: "website" },

@@ -29,7 +29,7 @@ export function FinalBlessing() {
       ref={rootRef}
       id="finale"
       aria-label="Closing blessing"
-      className="panel panel--dark pat-dark paper-grain section-pad relative overflow-hidden text-center"
+      className="panel panel--dark pat-petrol paper-grain section-pad relative overflow-hidden text-center"
     >
       {/* Ambient gold glow rising from the foot of the page */}
       <div

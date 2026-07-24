@@ -100,6 +100,8 @@ export function CountdownSection() {
     { scope: rootRef },
   );
 
+  /* Navy, between two petrol bands — the deck alternates navy/petrol and never
+     goes light. See the `Surfaces` block in styles.css. */
   return (
     <section
       ref={rootRef}

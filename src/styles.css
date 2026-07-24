@@ -2,23 +2,37 @@
 @source "../src";
 
 /* ─── Design tokens ─────────────────────────────────────────
-   Taken from the wax-seal envelope reference: kraft paper, black
-   card stock, and a gold seal. Three families, nothing else. */
-@theme inline {
-  /* Kraft paper */
-  --color-kraft-50: #f6ecdb;
-  --color-kraft-100: #eeddc4;
-  --color-kraft-200: #e0cba9;
-  --color-kraft-300: #cdb389;
-  --color-kraft-400: #b99a6d;
-  --color-kraft-500: #a3835a;
-  --color-kraft-600: #866a46;
+   Beige paper, deep navy card stock, and a gold seal. Three
+   families, nothing else — resist adding a fourth hue.
 
-  /* Black card stock */
-  --color-ink-900: #16150f;
-  --color-ink-800: #211f19;
-  --color-ink-700: #2e2b23;
-  --color-ink-600: #3d382e;
+   The beige ramp is the old kraft ladder at the same lightness but
+   ~30% less saturation and a touch cooler, so it still reads as
+   paper while sitting under navy rather than under black. The navy
+   ramp likewise preserves the ink ladder's lightness exactly: every
+   shadow, inset and gradient in this file was tuned against those
+   values, so moving only the hue keeps all of that depth intact. */
+@theme inline {
+  /* Beige paper */
+  --color-beige-50: #f6f0e3;
+  --color-beige-100: #ece2d0;
+  --color-beige-200: #ded1b9;
+  --color-beige-300: #ccbc9d;
+  --color-beige-400: #b4a181;
+  --color-beige-500: #9a8869;
+  --color-beige-600: #7d6e55;
+
+  /* Navy card stock */
+  --color-navy-600: #253c55;
+  --color-navy-700: #1a2d42;
+  --color-navy-800: #122031;
+  --color-navy-900: #0b1622;
+
+  /* Petrol — the second dark band, so the deck can alternate without ever
+     going light. Hue 196 against navy's 212: close enough to read as the same
+     family, far enough that the seam between two panels is visible. */
+  --color-petrol-700: #12363f;
+  --color-petrol-800: #0b2831;
+  --color-petrol-900: #061a20;
 
   /* Gold wax + foil */
   --color-gold: #c9a44c;
@@ -37,10 +51,10 @@
   --e-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --e-silk: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --sh-1: 0 1px 2px rgba(22, 21, 15, 0.05), 0 2px 8px rgba(22, 21, 15, 0.05);
-  --sh-2: 0 2px 4px rgba(22, 21, 15, 0.06), 0 10px 28px rgba(22, 21, 15, 0.09);
-  --sh-3: 0 4px 8px rgba(22, 21, 15, 0.07), 0 20px 52px rgba(22, 21, 15, 0.12);
-  --sh-4: 0 10px 20px rgba(22, 21, 15, 0.09), 0 36px 80px rgba(22, 21, 15, 0.16);
+  --sh-1: 0 1px 2px rgba(11, 22, 34, 0.05), 0 2px 8px rgba(11, 22, 34, 0.05);
+  --sh-2: 0 2px 4px rgba(11, 22, 34, 0.06), 0 10px 28px rgba(11, 22, 34, 0.09);
+  --sh-3: 0 4px 8px rgba(11, 22, 34, 0.07), 0 20px 52px rgba(11, 22, 34, 0.12);
+  --sh-4: 0 10px 20px rgba(11, 22, 34, 0.09), 0 36px 80px rgba(11, 22, 34, 0.16);
 
   --section-y: 5rem;
   --section-x: 1.25rem;
@@ -59,29 +73,49 @@
 }
 
 /* ─── Panel theming ──────────────────────────────────────────
-   Each panel declares its own foreground set, so components never
-   need a `light` prop — they just use .t-fg / .t-fg2 / .t-accent
-   and inherit whichever band they happen to sit in. */
-.panel {
-  --fg: #26231b;
-  --fg-2: rgba(38, 35, 27, 0.8);
-  --fg-3: rgba(38, 35, 27, 0.64);
-  --accent: #785a1d;
-  --rule: rgba(120, 90, 29, 0.4);
-  --rule-soft: rgba(120, 90, 29, 0.2);
-  --card: rgba(255, 253, 247, 0.9);
-  --card-border: rgba(120, 90, 29, 0.26);
-}
+   Every band is dark now — navy or petrol — so there is only one foreground
+   set and components still never need a light/dark prop; they use
+   .t-fg / .t-fg2 / .t-accent and inherit it.
 
+   `.panel--dark` is kept, declaring the same values, and every panel still
+   carries it. It is not decoration: a pile of rules select through it
+   (`.panel--dark .card`, `.panel--dark .count-cell`,
+   `.panel--dark .paper-grain::after`, `.panel--dark .shimmer`), and it is the
+   hook to restore a light band with if one is ever wanted again. */
+.panel,
 .panel--dark {
-  --fg: #f4ead7;
-  --fg-2: rgba(244, 234, 215, 0.82);
-  --fg-3: rgba(244, 234, 215, 0.64);
+  /* Text is warm and pale rather than white — a gold-lit cream that belongs
+     to the same ramp as the accent, so nothing on the page is a neutral. */
+  --fg: #f2e8d2;
+  --fg-2: rgba(242, 232, 210, 0.8);
+  --fg-3: rgba(242, 232, 210, 0.62);
   --accent: #e0c07a;
-  --rule: rgba(224, 192, 122, 0.42);
+  --rule: rgba(224, 192, 122, 0.45);
   --rule-soft: rgba(224, 192, 122, 0.2);
   --card: rgba(255, 255, 255, 0.05);
-  --card-border: rgba(224, 192, 122, 0.24);
+  --card-border: rgba(224, 192, 122, 0.28);
+
+  /* ── Glass ──
+     One recipe, used by every raised surface. Deliberately built WITHOUT
+     `backdrop-filter`: these surfaces sit inside panels the stack scales and
+     translates, and re-blurring a moving backdrop every frame is the single
+     most expensive thing this page ever did — it is what the whole composited
+     handoff exists to avoid. The backdrops here are smooth gradients plus a
+     grain tile, so an actual blur would return very nearly the same pixels it
+     was given; the glass reads instead from translucency, a top-lit sheen, a
+     gold hairline and an inset highlight. `.music-pill` is the one exception
+     and may keep a real blur — it is `position: fixed` and never scrubbed. */
+  --glass: linear-gradient(
+    168deg,
+    rgba(255, 255, 255, 0.085) 0%,
+    rgba(255, 255, 255, 0.03) 48%,
+    rgba(255, 255, 255, 0.055) 100%
+  );
+  --glass-border: rgba(224, 192, 122, 0.28);
+  --glass-hi: rgba(255, 255, 255, 0.14);
+  --glass-shadow:
+    0 1px 0 var(--glass-hi) inset, 0 -1px 0 rgba(0, 0, 0, 0.22) inset,
+    0 10px 24px rgba(0, 0, 0, 0.28), 0 28px 64px rgba(0, 0, 0, 0.3);
 }
 
 .t-fg {
@@ -102,14 +136,14 @@
   html {
     scroll-behavior: auto;
     -webkit-text-size-adjust: 100%;
-    background: #16150f;
+    background: #0b1622;
   }
   body {
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    background: #16150f;
-    color: #26231b;
+    background: #0b1622;
+    color: #f2e8d2;
     overflow-x: hidden;
   }
   * {
@@ -117,10 +151,10 @@
   }
   ::selection {
     background: rgba(201, 164, 76, 0.35);
-    color: #26231b;
+    color: #0b1622;
   }
   :focus-visible {
-    outline: 2px solid var(--accent, #785a1d);
+    outline: 2px solid var(--accent, #e0c07a);
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -147,7 +181,7 @@
 /* ─── Reveal system ──────────────────────────────────────────
    Pre-hidden only once JS confirms it can run (`html.motion-ready`,
    set in src/lib/gsap.ts). No JS, or reduced motion → paints normally. */
-/* No permanent `will-change` here. Every `.rv` in all seven panels would be a
+/* No permanent `will-change` here. Every `.rv` in every panel would be a
    GPU layer for the life of the page, and when the stack scales a panel the
    raster scale of every promoted descendant changes with it — dozens of
    re-rasterised layers per frame, which is the vibration reported during the
@@ -174,7 +208,7 @@ html.motion-ready .rv-r {
   position: relative;
   isolation: isolate;
   transform-origin: 50% 0%;
-  /* No permanent `will-change`: promoting all seven full-screen panels to GPU
+  /* No permanent `will-change`: promoting every full-screen panel to a GPU
      layers at once strains mobile GPUs and can itself flicker. StackScroll's
      `force3D` promotes only the one panel currently animating. */
 }
@@ -229,7 +263,7 @@ html.motion-ready .rv-r {
    every sub-pixel change of `scale`, which is the dominant cost behind the
    juddering as the next panel nears the top. With it, the panel is rastered
    once and scaled on the GPU. Scoped to the one or two panels mid-handoff,
-   never all seven (see .panel above). */
+   never all of them (see .panel above). */
 .panel--handoff {
   will-change: transform;
 }
@@ -268,7 +302,7 @@ html.scroll-locked body {
   border-radius: 2rem 2rem 0 0;
   box-shadow:
     0 -2px 0 rgba(255, 255, 255, 0.06),
-    0 -22px 50px rgba(22, 21, 15, 0.4);
+    0 -22px 50px rgba(11, 22, 34, 0.4);
 }
 
 /* No overlap at the cover → first-section boundary. The -2rem above pulls the
@@ -292,27 +326,27 @@ html.scroll-locked body {
   background: linear-gradient(to right, transparent, rgba(201, 164, 76, 0.75) 50%, transparent);
 }
 
-/* Surfaces */
-.pat-light {
-  background-color: #eeddc4;
+/* Surfaces
+   Two dark bands, alternating: navy, petrol, navy, petrol. There is no light
+   band any more — the deck reads as one dark room, and the separation that
+   used to come from a light/dark flip now comes from the hue step plus each
+   panel's rounded top edge and upward shadow. Every raised surface on top of
+   them is glass, so the contrast in the design is glass-against-band rather
+   than paper-against-wall. */
+.pat-petrol {
+  background-color: #0b2831;
   background-image:
-    radial-gradient(ellipse 70% 46% at 20% 4%, rgba(246, 236, 219, 0.9) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 44% at 86% 92%, rgba(205, 179, 137, 0.5) 0%, transparent 62%);
-}
-
-.pat-mid {
-  background-color: #e0cba9;
-  background-image:
-    radial-gradient(ellipse 66% 44% at 82% 6%, rgba(246, 236, 219, 0.85) 0%, transparent 62%),
-    radial-gradient(ellipse 58% 42% at 14% 88%, rgba(166, 134, 90, 0.4) 0%, transparent 62%);
+    radial-gradient(ellipse 66% 44% at 50% 0%, rgba(201, 164, 76, 0.13) 0%, transparent 62%),
+    radial-gradient(ellipse 60% 44% at 82% 92%, rgba(18, 54, 63, 0.95) 0%, transparent 64%),
+    linear-gradient(170deg, #061a20 0%, #10323c 48%, #071e25 100%);
 }
 
 .pat-dark {
-  background-color: #211f19;
+  background-color: #122031;
   background-image:
     radial-gradient(ellipse 66% 44% at 50% 0%, rgba(201, 164, 76, 0.14) 0%, transparent 62%),
-    radial-gradient(ellipse 60% 44% at 16% 92%, rgba(61, 56, 46, 0.9) 0%, transparent 64%),
-    linear-gradient(170deg, #16150f 0%, #26231b 46%, #1c1a14 100%);
+    radial-gradient(ellipse 60% 44% at 16% 92%, rgba(37, 60, 85, 0.9) 0%, transparent 64%),
+    linear-gradient(170deg, #0b1622 0%, #14263a 46%, #0e1b2b 100%);
 }
 
 /* ─── Typography ─────────────────────────────────────────── */
@@ -404,11 +438,11 @@ html.scroll-locked body {
   --env-vh: min(100svh, var(--app-height, 100svh));
   padding: 1.5rem;
   overflow: hidden;
-  background-color: #211f19;
+  background-color: #122031;
   background-image:
     radial-gradient(ellipse 60% 50% at 50% 42%, rgba(201, 164, 76, 0.16) 0%, transparent 66%),
-    radial-gradient(ellipse 90% 70% at 50% 108%, rgba(22, 21, 15, 0.9) 0%, transparent 60%),
-    linear-gradient(165deg, #16150f 0%, #2e2b23 48%, #16150f 100%);
+    radial-gradient(ellipse 90% 70% at 50% 108%, rgba(11, 22, 34, 0.9) 0%, transparent 60%),
+    linear-gradient(165deg, #0b1622 0%, #1a2d42 48%, #0b1622 100%);
 }
 
 /* Warm pool of light under the envelope */
@@ -540,8 +574,9 @@ html.scroll-locked body {
   left: 34%;
   right: 8%;
   border-radius: 3px;
-  background-image: linear-gradient(168deg, #fffaf0 0%, #f6ecdb 55%, #eeddc4 100%);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  background-image: linear-gradient(168deg, #16293c 0%, #0e2029 55%, #081b22 100%);
+  border: 1px solid rgba(224, 192, 122, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -645,14 +680,14 @@ html.scroll-locked body {
   z-index: 1;
   border-radius: 5px;
   overflow: hidden;
-  background-color: #cdb389;
+  background-color: #ccbc9d;
   background-image:
-    linear-gradient(158deg, #e0cba9 0%, #cdb389 46%, #b99a6d 100%),
-    radial-gradient(ellipse 60% 50% at 30% 20%, rgba(246, 236, 219, 0.5), transparent 60%);
+    linear-gradient(158deg, #ded1b9 0%, #ccbc9d 46%, #b4a181 100%),
+    radial-gradient(ellipse 60% 50% at 30% 20%, rgba(246, 240, 227, 0.5), transparent 60%);
   box-shadow:
-    0 2px 3px rgba(22, 21, 15, 0.3),
-    0 26px 50px rgba(22, 21, 15, 0.55),
-    0 60px 100px rgba(22, 21, 15, 0.4),
+    0 2px 3px rgba(11, 22, 34, 0.3),
+    0 26px 50px rgba(11, 22, 34, 0.55),
+    0 60px 100px rgba(11, 22, 34, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -666,18 +701,18 @@ html.scroll-locked body {
 }
 .env-fold--left {
   clip-path: polygon(0 0, 50% 47%, 0 100%);
-  background: linear-gradient(100deg, #d6c098 0%, #c2a87e 70%, #b0925f 100%);
-  box-shadow: inset -1px 0 2px rgba(22, 21, 15, 0.16);
+  background: linear-gradient(100deg, #d5c6a9 0%, #c0af92 70%, #ab9a7b 100%);
+  box-shadow: inset -1px 0 2px rgba(11, 22, 34, 0.16);
 }
 .env-fold--right {
   clip-path: polygon(100% 0, 50% 47%, 100% 100%);
-  background: linear-gradient(260deg, #d6c098 0%, #c2a87e 70%, #b0925f 100%);
-  box-shadow: inset 1px 0 2px rgba(22, 21, 15, 0.16);
+  background: linear-gradient(260deg, #d5c6a9 0%, #c0af92 70%, #ab9a7b 100%);
+  box-shadow: inset 1px 0 2px rgba(11, 22, 34, 0.16);
 }
 .env-fold--bottom {
   clip-path: polygon(0 100%, 50% 46%, 100% 100%);
-  background: linear-gradient(0deg, #d9c39c 0%, #cbb188 62%, #bda071 100%);
-  filter: drop-shadow(0 -2px 3px rgba(22, 21, 15, 0.2));
+  background: linear-gradient(0deg, #d8c9ad 0%, #c9ba9c 62%, #b9a889 100%);
+  filter: drop-shadow(0 -2px 3px rgba(11, 22, 34, 0.2));
 }
 
 /* The letter that rises out. Sized by top/bottom rather than an aspect
@@ -698,12 +733,12 @@ html.scroll-locked body {
   gap: 0.5rem;
   padding: 1.75rem 1.25rem;
   text-align: center;
-  background-color: #f6ecdb;
-  background-image: linear-gradient(170deg, #fffaf0 0%, #f6ecdb 55%, #eeddc4 100%);
-  border: 1px solid rgba(120, 90, 29, 0.22);
+  background-color: #0e2029;
+  background-image: linear-gradient(170deg, #16293c 0%, #0e2029 55%, #081b22 100%);
+  border: 1px solid rgba(224, 192, 122, 0.22);
   box-shadow:
-    0 -2px 6px rgba(22, 21, 15, 0.18),
-    0 20px 44px rgba(22, 21, 15, 0.4);
+    0 -2px 6px rgba(11, 22, 34, 0.18),
+    0 20px 44px rgba(11, 22, 34, 0.4);
   will-change: transform;
 }
 
@@ -731,16 +766,16 @@ html.scroll-locked body {
   -webkit-backface-visibility: hidden;
 }
 .env-flap__face--front {
-  background-color: #211f19;
+  background-color: #122031;
   background-image:
-    linear-gradient(178deg, #34302a 0%, #211f19 46%, #16150f 100%),
+    linear-gradient(178deg, #1e3248 0%, #122031 46%, #0b1622 100%),
     radial-gradient(ellipse 50% 60% at 50% 0%, rgba(201, 164, 76, 0.1), transparent 70%);
-  filter: drop-shadow(0 5px 12px rgba(22, 21, 15, 0.5));
+  filter: drop-shadow(0 5px 12px rgba(11, 22, 34, 0.5));
 }
 .env-flap__face--back {
   transform: rotateX(180deg);
-  background-image: linear-gradient(178deg, #b99a6d 0%, #cdb389 42%, #dcc59f 100%);
-  filter: drop-shadow(0 -4px 10px rgba(22, 21, 15, 0.35));
+  background-image: linear-gradient(178deg, #b4a181 0%, #ccbc9d 42%, #dbccb0 100%);
+  filter: drop-shadow(0 -4px 10px rgba(11, 22, 34, 0.35));
 }
 
 /* Gold wax seal */
@@ -770,8 +805,8 @@ html.scroll-locked body {
   box-shadow:
     inset 0 1px 1px rgba(255, 248, 226, 0.4),
     inset 0 -2px 4px rgba(84, 62, 18, 0.26),
-    0 2px 3px rgba(22, 21, 15, 0.45),
-    0 8px 18px rgba(22, 21, 15, 0.5),
+    0 2px 3px rgba(11, 22, 34, 0.45),
+    0 8px 18px rgba(11, 22, 34, 0.5),
     0 0 30px rgba(201, 164, 76, 0.22);
   transition: transform 160ms var(--e-out);
   will-change: transform;
@@ -840,11 +875,21 @@ html.scroll-locked body {
 .hero-card {
   position: relative;
   border-radius: 1.25rem;
-  background-image: linear-gradient(168deg, #fffaf0 0%, #f6ecdb 52%, #eeddc4 100%);
-  border: 1px solid rgba(120, 90, 29, 0.34);
+  /* A shade denser than the other glass — it is the first thing seen after
+     the envelope opens, and it has to hold its own over the cover's glow and
+     particles rather than letting them read through it. */
+  background-image:
+    linear-gradient(
+      168deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.035) 50%,
+      rgba(255, 255, 255, 0.07) 100%
+    ),
+    linear-gradient(168deg, rgba(18, 32, 49, 0.82) 0%, rgba(6, 26, 32, 0.86) 100%);
+  border: 1px solid rgba(224, 192, 122, 0.34);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    var(--sh-4);
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 30px 80px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
 .hero-card::after {
@@ -852,7 +897,7 @@ html.scroll-locked body {
   position: absolute;
   inset: 9px;
   border-radius: 0.9rem;
-  border: 1px solid rgba(120, 90, 29, 0.2);
+  border: 1px solid rgba(224, 192, 122, 0.22);
   pointer-events: none;
 }
 
@@ -987,36 +1032,29 @@ html.scroll-locked body {
 }
 
 /* ─── Cards ──────────────────────────────────────────────── */
-.card {
+.card,
+.panel--dark .card {
   position: relative;
-  background: var(--card);
-  border: 1px solid var(--card-border);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
   border-radius: 1.15rem;
-  box-shadow: var(--sh-2);
+  box-shadow: var(--glass-shadow);
   transition:
     transform 0.4s var(--e-silk),
     box-shadow 0.4s var(--e-silk),
     border-color 0.4s ease;
 }
-/* No backdrop-filter: these cards live inside panels the stack scrub scales
-   and fades, and re-blurring a moving backdrop every frame is what made the
-   scroll lag. A semi-opaque dark fill reads the same over the textured band. */
-.panel--dark .card {
-  background: linear-gradient(168deg, rgba(58, 54, 44, 0.5) 0%, rgba(28, 26, 20, 0.46) 100%);
-  box-shadow:
-    0 6px 18px rgba(0, 0, 0, 0.3),
-    0 22px 54px rgba(0, 0, 0, 0.34);
-}
-.card::before {
+/* The sheen: a short, steep light fall from the top edge. This is what sells
+   glass once the blur is off the table — an edge-lit pane reads as glass, a
+   flat translucent rectangle reads as a tint. */
+.card::before,
+.panel--dark .card::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), transparent 20%);
-}
-.panel--dark .card::before {
-  background: linear-gradient(to bottom, rgba(244, 234, 215, 0.12), transparent 22%);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.11), transparent 26%);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1167,8 +1205,8 @@ html.scroll-locked body {
   gap: 0.5rem;
   min-height: 44px;
   padding: 0.6rem 1rem 0.6rem 0.8rem;
-  color: #f4ead7;
-  background: rgba(33, 31, 25, 0.9);
+  color: #f2e8d2;
+  background: rgba(18, 32, 49, 0.9);
   border: 1px solid rgba(201, 164, 76, 0.5);
   border-radius: 9999px;
   backdrop-filter: blur(14px);
@@ -1245,7 +1283,7 @@ html.scroll-locked body {
   color: #2a1f08;
   background: radial-gradient(circle at 34% 28%, #f7e9c2, #e8cf94 30%, #c9a44c 66%, #8a6a2a);
   box-shadow:
-    0 8px 20px rgba(22, 21, 15, 0.28),
+    0 8px 20px rgba(11, 22, 34, 0.28),
     0 0 24px rgba(201, 164, 76, 0.3),
     inset 0 1px 3px rgba(255, 255, 255, 0.7);
 }
@@ -1287,12 +1325,20 @@ html.scroll-locked body {
 .details-panel {
   position: relative;
   padding: 2rem 1.35rem;
-  background: linear-gradient(165deg, #fffaf0 0%, #f6ecdb 46%, #eeddc4 100%);
-  border: 1px solid rgba(120, 90, 29, 0.34);
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
   border-radius: 1.4rem;
-  box-shadow:
-    var(--sh-3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow: var(--glass-shadow);
+}
+/* Its own sheen, matching `.card` — this is the largest pane on the page and
+   without the top-edge light it flattens into a plain tinted box. */
+.details-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.09), transparent 18%);
 }
 @media (min-width: 640px) {
   .details-panel {
@@ -1303,7 +1349,7 @@ html.scroll-locked body {
   position: absolute;
   width: 26px;
   height: 26px;
-  border-color: #785a1d;
+  border-color: var(--accent);
   border-style: solid;
   opacity: 0.6;
 }
@@ -1354,7 +1400,7 @@ html.scroll-locked body {
   font-weight: 600;
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: #785a1d;
+  color: var(--accent);
 }
 .details-couple__name {
   margin-top: 0.4rem;
@@ -1362,7 +1408,7 @@ html.scroll-locked body {
   font-size: clamp(1.05rem, 4.4vw, 1.6rem);
   font-weight: 600;
   line-height: 1.25;
-  color: #26231b;
+  color: var(--fg);
 }
 .details-couple__divider {
   display: flex;
@@ -1379,23 +1425,23 @@ html.scroll-locked body {
   display: block;
   width: 36px;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(120, 90, 29, 0.55));
+  background: linear-gradient(to right, transparent, rgba(224, 192, 122, 0.55));
 }
 .details-couple__divider .details-couple__line:last-child {
-  background: linear-gradient(to left, transparent, rgba(120, 90, 29, 0.55));
+  background: linear-gradient(to left, transparent, rgba(224, 192, 122, 0.55));
 }
 @media (max-width: 479px) {
   .details-couple__line {
     width: 1px;
     height: 20px;
-    background: linear-gradient(to bottom, transparent, rgba(120, 90, 29, 0.55));
+    background: linear-gradient(to bottom, transparent, rgba(224, 192, 122, 0.55));
   }
   .details-couple__divider .details-couple__line:last-child {
-    background: linear-gradient(to top, transparent, rgba(120, 90, 29, 0.55));
+    background: linear-gradient(to top, transparent, rgba(224, 192, 122, 0.55));
   }
 }
 .details-couple__star {
-  color: #785a1d;
+  color: var(--accent);
   font-size: 0.8rem;
   line-height: 1;
 }
@@ -1405,9 +1451,9 @@ html.scroll-locked body {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(120, 90, 29, 0.26) 20%,
-    rgba(120, 90, 29, 0.5) 50%,
-    rgba(120, 90, 29, 0.26) 80%,
+    rgba(224, 192, 122, 0.26) 20%,
+    rgba(224, 192, 122, 0.5) 50%,
+    rgba(224, 192, 122, 0.26) 80%,
     transparent
   );
 }
@@ -1427,8 +1473,11 @@ html.scroll-locked body {
   gap: 0.9rem;
   padding: 1.1rem;
   border-radius: 0.95rem;
-  border: 1px solid rgba(120, 90, 29, 0.18);
-  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(224, 192, 122, 0.16);
+  /* Lighter than `--glass`: these sit *inside* the details pane, and reusing
+     the full recipe stacked two sheets of glass and muddied both. */
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
   transition:
     transform 0.35s var(--e-silk),
     box-shadow 0.35s ease,
@@ -1437,14 +1486,16 @@ html.scroll-locked body {
 @media (hover: hover) and (pointer: fine) {
   .detail-cell:hover {
     transform: translateY(-3px);
-    border-color: rgba(120, 90, 29, 0.45);
-    box-shadow: var(--sh-2);
+    border-color: var(--rule);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 10px 26px rgba(0, 0, 0, 0.3);
   }
 }
 .detail-cell--featured {
   padding: 1.3rem 1.2rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(238, 221, 196, 0.85) 100%);
-  border-color: rgba(120, 90, 29, 0.36);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.045) 100%);
+  border-color: rgba(224, 192, 122, 0.32);
 }
 .detail-cell--featured .detail-cell__value {
   font-size: 1.05rem;
@@ -1457,10 +1508,10 @@ html.scroll-locked body {
   width: 2.7rem;
   height: 2.7rem;
   border-radius: 50%;
-  color: #785a1d;
-  background: linear-gradient(145deg, rgba(232, 207, 148, 0.7) 0%, rgba(201, 164, 76, 0.26) 100%);
-  border: 1px solid rgba(120, 90, 29, 0.34);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: var(--accent);
+  background: linear-gradient(145deg, rgba(224, 192, 122, 0.2) 0%, rgba(201, 164, 76, 0.07) 100%);
+  border: 1px solid rgba(224, 192, 122, 0.34);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .detail-cell__body {
   min-width: 0;
@@ -1471,7 +1522,7 @@ html.scroll-locked body {
   font-weight: 600;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: #785a1d;
+  color: var(--accent);
 }
 .detail-cell__value {
   margin-top: 0.3rem;
@@ -1479,10 +1530,12 @@ html.scroll-locked body {
   font-size: 0.95rem;
   font-weight: 600;
   line-height: 1.35;
-  color: #26231b;
+  color: var(--fg);
 }
 
 /* ─── Countdown ──────────────────────────────────────────── */
+/* One treatment now that every band is dark. The split line across the middle
+   is what makes these read as flip-clock cards rather than plain tiles. */
 .count-cell {
   position: relative;
   display: flex;
@@ -1492,17 +1545,21 @@ html.scroll-locked body {
   width: 100%;
   border-radius: 0.9rem;
   overflow: hidden;
-  /* Opaque fill instead of backdrop-blur — see the note on .panel--dark .card */
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+.panel--dark .count-cell {
   background: linear-gradient(
     160deg,
-    rgba(74, 68, 54, 0.5) 0%,
-    rgba(42, 39, 31, 0.5) 52%,
-    rgba(18, 17, 12, 0.6) 100%
+    rgba(46, 72, 100, 0.5) 0%,
+    rgba(24, 44, 64, 0.5) 52%,
+    rgba(9, 18, 28, 0.6) 100%
   );
-  border: 1px solid rgba(224, 192, 122, 0.3);
+  border-color: rgba(224, 192, 122, 0.3);
   box-shadow:
     0 8px 22px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(244, 234, 215, 0.18);
+    inset 0 1px 0 rgba(242, 236, 225, 0.18);
 }
 .count-cell::after {
   content: "";
@@ -1511,8 +1568,8 @@ html.scroll-locked body {
   left: 0;
   right: 0;
   height: 1px;
-  background: rgba(0, 0, 0, 0.4);
-  box-shadow: 0 1px 0 rgba(244, 234, 215, 0.08);
+  background: rgba(0, 0, 0, 0.32);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.09);
 }
 .count-cell__num {
   font-family: var(--font-display);
@@ -1540,11 +1597,11 @@ html.scroll-locked body {
 .venue-map {
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid rgba(120, 90, 29, 0.34);
+  border-bottom: 1px solid rgba(224, 192, 122, 0.28);
 }
 /* Muted to sit inside the card. No hue-rotate — it swings water purple. */
 .venue-map iframe {
-  filter: saturate(0.62) sepia(0.18) brightness(1.03) contrast(0.98);
+  filter: saturate(0.55) sepia(0.22) brightness(0.82) contrast(1.04) invert(0.9) hue-rotate(180deg);
 }
 .venue-map::after {
   content: "";
@@ -1553,10 +1610,10 @@ html.scroll-locked body {
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(22, 21, 15, 0.1) 0%,
+    rgba(11, 22, 34, 0.1) 0%,
     transparent 20%,
     transparent 78%,
-    rgba(246, 236, 219, 0.55) 100%
+    rgba(6, 26, 32, 0.5) 100%
   );
 }
 
@@ -1565,12 +1622,9 @@ html.scroll-locked body {
   position: relative;
   padding: 1.9rem 1.4rem;
   border-radius: 1.15rem;
-  border: 1px solid var(--card-border);
-  background: var(--card);
-  box-shadow: var(--sh-2);
-}
-.panel--dark .signature {
-  background: linear-gradient(168deg, rgba(58, 54, 44, 0.5) 0%, rgba(28, 26, 20, 0.46) 100%);
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  box-shadow: var(--glass-shadow);
 }
 
 /* ─── Mobile type scale ──────────────────────────────────── */

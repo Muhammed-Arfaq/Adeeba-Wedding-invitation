@@ -17,8 +17,6 @@ export const wedding = {
     translit: "In the name of Allah, the Most Gracious, the Most Merciful",
   },
 
-  greeting: "Dear Friend,",
-
   /** Monogram initials shown on the curtain seal and hero */
   monogram: { left: "A", right: "A" },
 
@@ -41,15 +39,15 @@ export const wedding = {
     role: "Bride",
     parents: {
       father: "Mr. Ahammed Ameen OM",
-      mother: "Mrs. Shabeena",
+      mother: "Mrs. Shabeena Mangat",
     },
     residence: {
       house: "Anthurayil House",
       location: "Puthuponnani (P.O.), Ponnani South",
     },
     grandparents: [
-      { first: "Mr. Moythu Moulavi A M", second: "Mrs. Fathima Hajjumma" },
-      { first: "Late Abbu Maningayil", second: "Ayishakutty Mangattu" },
+      { first: "Mr. Moithu Moulavi A M", second: "Mrs. Fathima Hajjumma" },
+      { first: "Late Abdu Maningayil", second: "Ayishakutty Mangat" },
     ],
   },
 
@@ -63,7 +61,7 @@ export const wedding = {
       mother: "Mrs. Nabeesa",
     },
     residence: {
-      house: "Kunjilpeedikayil House",
+      house: "Kundilpeedikayil House",
       location: "Kottappadam (P.O.), Koottanad",
     },
     grandparents: [
@@ -85,14 +83,6 @@ export const wedding = {
         "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا",
       reference: "Surah Al-Furqan 25:74",
     },
-    /** Welcome section */
-    welcome: {
-      arabic:
-        "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً",
-      verse:
-        "And among His signs is that He created for you mates from among yourselves, that you may dwell in tranquillity with them, and He has put love and mercy between your hearts.",
-      reference: "Surah Ar-Rum 30:21",
-    },
     /** Wedding details section */
     details: {
       arabic:
@@ -102,15 +92,6 @@ export const wedding = {
       reference: "Surah An-Nisa 4:1",
     },
   },
-
-  /** Lead line on the welcome section — mirrors the printed card */
-  announcement: {
-    lead: "Our daughter",
-    trailing: "is to be wed to",
-  },
-
-  invitation:
-    "Nikah is the sacred bond by which Allah unites two hearts in what is pure and halal. Your presence at that blessed moment is what completes our joy — we await the loving company of you and your family.",
 
   closingNote:
     "Your presence and duas would mean the world to us as we begin this blessed journey together.",
@@ -131,7 +112,7 @@ export const wedding = {
   /** Signed at the foot of the card — "With love," */
   hosts: {
     salutation: "With love,",
-    names: "Mr. Ahammed Ameen OM & Mrs. Shabeena",
+    names: "Mr. Ahammed Ameen OM & Mrs. Shabeena Mangat",
     house: "Anthurayil House",
     location: "Puthuponnani (P.O.), Ponnani South",
     phone: "+91 95444 84103",

@@ -2,7 +2,11 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap, useGSAP, prefersReducedMotion } from "@/lib/gsap";
 import { wedding } from "@/config/wedding";
 import { useMusic } from "@/context/MusicContext";
-import { scrollToSection, setScrollLocked } from "@/components/shared/SmoothScroll";
+import {
+  autoScrollToEnd,
+  scrollToSection,
+  setScrollLocked,
+} from "@/components/shared/SmoothScroll";
 import { Particles } from "@/components/shared/Particles";
 import { GoldDivider } from "@/components/shared/GoldDivider";
 import { Emblem786 } from "@/components/shared/Emblem";
@@ -283,18 +287,18 @@ export function EnvelopeCover() {
             </picture>
 
             <div ref={photoPocketRef} className="env-photo__pocket">
-              <p className="text-[0.46rem] tracking-[0.28em] uppercase text-[#8a6a2a]">
+              <p className="text-[0.46rem] tracking-[0.28em] uppercase t-accent">
                 {wedding.cover.subtitle}
               </p>
-              <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
+              <p className="font-display text-base font-semibold tracking-wide t-fg">
                 {wedding.bride.shortName}
               </p>
-              <p className="font-arabic text-xs text-[#8a6a2a]">&amp;</p>
-              <p className="font-display text-base font-semibold tracking-wide text-[#26231b]">
+              <p className="font-arabic text-xs t-accent">&amp;</p>
+              <p className="font-display text-base font-semibold tracking-wide t-fg">
                 {wedding.groom.shortName}
               </p>
               <span className="mt-0.5 block h-px w-8 bg-[rgba(120,90,29,0.45)]" />
-              <p className="text-[0.44rem] tracking-[0.2em] uppercase text-[#6b5b42]">
+              <p className="text-[0.44rem] tracking-[0.2em] uppercase t-fg3">
                 {wedding.weddingDateLabel}
               </p>
             </div>
@@ -341,18 +345,18 @@ export function EnvelopeCover() {
             <span className="env-fold env-fold--right" aria-hidden />
 
             <div ref={letterRef} className="env-letter">
-              <p className="text-[0.5rem] tracking-[0.3em] uppercase text-[#8a6a2a]">
+              <p className="text-[0.5rem] tracking-[0.3em] uppercase t-accent">
                 {wedding.cover.subtitle}
               </p>
-              <p className="font-display text-lg font-semibold tracking-wide text-[#26231b]">
+              <p className="font-display text-lg font-semibold tracking-wide t-fg">
                 {wedding.bride.shortName}
               </p>
-              <p className="font-arabic text-sm text-[#8a6a2a]">&amp;</p>
-              <p className="font-display text-lg font-semibold tracking-wide text-[#26231b]">
+              <p className="font-arabic text-sm t-accent">&amp;</p>
+              <p className="font-display text-lg font-semibold tracking-wide t-fg">
                 {wedding.groom.shortName}
               </p>
               <span className="mt-1 block h-px w-10 bg-[rgba(120,90,29,0.45)]" />
-              <p className="text-[0.5rem] tracking-[0.22em] uppercase text-[#6b5b42]">
+              <p className="text-[0.5rem] tracking-[0.22em] uppercase t-fg3">
                 {wedding.weddingDateLabel}
               </p>
             </div>
@@ -405,46 +409,44 @@ export function EnvelopeCover() {
               <Emblem786 />
             </div>
 
-            <p className="hero-line mt-4 font-arabic text-base leading-loose text-gold-deep sm:mt-5 sm:text-xl">
+            <p className="hero-line mt-4 font-arabic text-base leading-loose t-accent sm:mt-5 sm:text-xl">
               {wedding.quran.cover.arabic}
             </p>
 
             <GoldDivider className="hero-line" />
 
-            <p className="hero-line text-[0.55rem] tracking-[0.28em] uppercase text-[#26231b]/80 sm:text-[0.62rem] sm:tracking-[0.38em]">
+            <p className="hero-line text-[0.55rem] tracking-[0.28em] uppercase t-fg3 sm:text-[0.62rem] sm:tracking-[0.38em]">
               {wedding.cover.subtitle}
             </p>
 
-            <h1 className="hero-line mt-4 font-display text-2xl font-semibold tracking-wider text-[#26231b] sm:mt-5 sm:text-4xl">
+            <h1 className="hero-line mt-4 font-display text-2xl font-semibold tracking-wider t-fg sm:mt-5 sm:text-4xl">
               {wedding.bride.displayName}
             </h1>
             <p
-              className="hero-line my-1.5 font-arabic text-xl text-gold-deep sm:my-2 sm:text-3xl"
+              className="hero-line my-1.5 font-arabic text-xl t-accent sm:my-2 sm:text-3xl"
               aria-hidden
             >
               &amp;
             </p>
-            <h1 className="hero-line font-display text-2xl font-semibold tracking-wider text-[#26231b] sm:text-4xl">
+            <h1 className="hero-line font-display text-2xl font-semibold tracking-wider t-fg sm:text-4xl">
               {wedding.groom.displayName}
             </h1>
 
             <GoldDivider className="hero-line" />
 
-            <p className="hero-line font-display text-sm tracking-wide text-[#26231b]/90 sm:text-base">
+            <p className="hero-line font-display text-sm tracking-wide t-fg2 sm:text-base">
               {wedding.weddingDateLabel}
             </p>
-            <p className="hero-line mt-1 text-[0.7rem] text-[#26231b]/80 sm:text-xs">
+            <p className="hero-line mt-1 text-[0.7rem] t-fg3 sm:text-xs">
               {wedding.ceremonyName} &nbsp;·&nbsp; {wedding.weddingTimeLabel}
             </p>
-            <p className="hero-line mt-1 text-[0.7rem] text-[#26231b]/78 sm:text-xs">
+            <p className="hero-line mt-1 text-[0.7rem] t-fg3 sm:text-xs">
               {wedding.venue.name}, {wedding.venue.location}
             </p>
 
-            <button
-              type="button"
-              onClick={() => scrollToSection("welcome")}
-              className="hero-line btn-gold mt-7"
-            >
+            {/* Plays the card through to the foot of the page on its own.
+                Any wheel, touch or arrow key hands control straight back. */}
+            <button type="button" onClick={autoScrollToEnd} className="hero-line btn-gold mt-7">
               View Invitation
             </button>
           </div>
@@ -453,7 +455,7 @@ export function EnvelopeCover() {
         <div ref={cueRef} className="flex shrink-0 justify-center">
           <button
             type="button"
-            onClick={() => scrollToSection("welcome")}
+            onClick={() => scrollToSection("details")}
             className="scroll-cue"
             aria-label="Scroll to the invitation"
           >
