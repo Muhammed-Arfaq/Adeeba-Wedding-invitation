@@ -97,9 +97,9 @@ The GSAP path below is now the **fallback** for browsers without scroll-driven a
 
 Components use `.t-fg` / `.t-fg2` / `.t-fg3` / `.t-accent` and inherit the band they sit in — which is why `SectionLabel`, `SectionTitle` and `ArchOrnament` take no `light` prop. To add a section, put `panel panel--dark pat-dark` (or `pat-petrol`) on it and everything inside recolours itself.
 
-Current rhythm is sage ↔ mist, across four panels: cover (its own slightly deeper ground), details (`pat-sage`), countdown (`pat-mist`), finale (`pat-sage`). **The page is light throughout.**
+Current rhythm is navy ↔ midnight, across four panels: cover (its own ground, deepest of all), details (`pat-navy`), countdown (`pat-midnight`), finale (`pat-navy`). **The page is dark blue throughout.**
 
-**The two bands sit deliberately close in lightness and a step apart in HUE.** On a dark page a big tonal step between panels reads as depth; on a light one the same step reads as a banding artefact. Sage (hue ~110) and mist (hue ~187) give the deck a hue shift instead — the seam is carried by that, plus the rounded top edge, the upward shadow and the glass sitting on each band. Resist widening the tonal gap.
+**These two bands differ by DEPTH, not hue** — both are the same blue, one lighter than the other. That is the opposite of the pastel theme, which had to step the hue because on a light page a big tonal jump reads as a banding artefact. On a dark page tone is free again: depth reads as depth, and keeping one hue is what makes the deck read as a single dark blue room rather than two colours.
 
 There is **one** foreground set, declared on `.panel`. `.panel--dark` is no longer on any panel, but its rules are deliberately kept: together they are a complete, working dark treatment for `.paper-grain`, `.shimmer`, `.card` and `.count-cell`, so adding the class back to a section is all it takes to get a dark band. Deleting them buys nothing.
 
@@ -177,7 +177,7 @@ Tailwind v4, configured entirely in [src/styles.css](src/styles.css) (`@theme in
 | Group    | Classes                                                                                                                                                                                                                                   |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Layout   | `.stack`, `.panel`, `.panel--dark`, `.panel--handoff`, `.section-pad`, `.rv`, `.rv-l`, `.rv-r`                                                                                                                                            |
-| Surfaces | `.pat-sage`, `.pat-mist`, `.paper-grain`, `.card` (`.pat-dark` is retired but its `.panel--dark` rules are kept)                                                                                                                          |
+| Surfaces | `.pat-navy`, `.pat-midnight`, `.paper-grain`, `.card`                                                                                                                                                                                     |
 | Tokens   | `.t-fg`, `.t-fg2`, `.t-fg3`, `.t-accent`; glass is `--glass` / `--glass-border` / `--glass-hi` / `--glass-shadow` (properties on `.panel`, not classes)                                                                                   |
 | Cover    | `.env-scene`, `.env-centre`, `.env-stage`, `.env-slot`, `.envelope`, `.env-body`, `.env-fold--*`, `.env-letter`, `.env-flap`, `.env-flap__face--*`, `.env-seal`, `.env-halo`, `.env-glow`, `.hero-card`, `.corner-mark--*`, `.scroll-cue` |
 | Ornament | `.orn-*` (right-hand rule is `.orn-line--rev`), `.arch-ornament`, `.family-link`, `.shimmer`, `.emblem`, `.particles`/`.particle` (on every panel; gated by `.panel--idle`)                                                               |
@@ -186,19 +186,21 @@ Tailwind v4, configured entirely in [src/styles.css](src/styles.css) (`@theme in
 
 ### Palette
 
-Three families: **pastel ground**, **forest ink**, **gold**. Nothing else — resist adding a fourth hue.
+Three families: **dark blue**, **warm cream**, **gold**. Nothing else — resist adding a fourth hue.
 
-The ground is a pastel _pair_: sage `--color-sage-100` `#eaf1e8` (hue ~110) and mist `--color-mist-100` `#e3edee` (hue ~187), a green and a blue-green, with their ramps running to `--color-sage-600` `#5f7360` and `--color-mist-400` `#9bb8bc`. Ink is `--color-ink` `#1f3329`, a deep forest — it is both the type and the envelope flap, so the one dark thing on the page matches the text. Gold `#c9a44c`, light `#e8cf94`, pale `#f5e6bf`, deep `#785a1d`.
+Two blues, one hue: navy `--color-navy-800` `#152340` is the lighter band and midnight `--color-midnight-800` `#0a1424` the deeper, with ramps to `--color-navy-500` `#2b436b` and `--color-midnight-900` `#060e1a`. Text is `--color-cream` `#e9e2d0` — warm rather than white, so it belongs to the gold's ramp and **nothing on the page is a neutral**. Gold `#c9a44c`, light `#e8cf94`, pale `#f5e6bf`, deep `#785a1d`.
 
-**On a light ground gold must come from the deep end of the ramp.** `--accent` is `#6f5318`; the dark theme's `#e0c07a` falls to about 1.5:1 on a pastel and simply disappears. Every rule, hairline, border and small label is gold; body copy is ink. Reach for the `.t-*` utilities rather than the hexes.
+**On a dark ground gold must come from the PALE end of the ramp.** `--accent` is `#e0c07a`; the light themes' `#6f5318` measures about 1.6:1 on midnight and disappears. This choice inverts every time the ground does, and it has caught something on each swap — the hints, the scroll-progress bar's pale stop (a highlight here, a gap on light), the detail-cell labels. Reach for the `.t-*` utilities rather than the hexes.
 
-**The envelope is themed too** — pale sage body, deep forest flap, gold wax — so nothing on the page is left over from an earlier palette. The card _inside_ it (`.env-letter`, `.env-photo__pocket`) is white, matching the `.hero-card` it becomes. The cover is given its **own** slightly deeper ground rather than reusing `.pat-sage`: a pale envelope on the palest band nearly vanishes, and the scene has to give it something to lie on. The forest flap and gold wax are what make the envelope read at all on a light page — don't flatten them.
+**The dust inverts too.** On a light band a mote had to be a small _solid_ form — higher alpha, tight falloff — or it vanished into the paper; on a dark one it reads from its own glow, so it goes pale and soft again. See `.particle`.
+
+**The envelope is themed too** — pale blue-grey body, deep navy flap, gold wax — so nothing on the page is left over from an earlier palette. The card _inside_ it (`.env-letter`, `.env-photo__pocket`) is dark blue glass, matching the `.hero-card` it becomes. Those two are near-identical rules and a search-and-replace crossed them once, leaving the phone pocket light while the desktop letter went dark — check both.
+
+The cover keeps its **own** ground rather than reusing a band. Which way it needs to go flips with the theme: on a light page the envelope had to be pushed pale and the ground made _deeper_ so it did not dissolve into the band; on a dark page the body has to stay clearly _lighter_ than the ground for the same reason. The mapping in `plates.mjs` carries that as a comment.
 
 **Glass, and why it has no `backdrop-filter`.** Every raised surface shares one recipe, declared as `--glass` / `--glass-border` / `--glass-hi` / `--glass-shadow` on `.panel`: a white gradient, a gold hairline, an inset top highlight and a drop shadow, plus a `::before` sheen that falls steeply from the top edge. **Light glass inverts the dark recipe rather than reusing it** — the fill is near-opaque white over a tinted band instead of white-at-8%-over-dark, and the shadow is wide and faint instead of deep and black; the lift comes from the paper around the pane being warmer than the pane. That sheen is what sells it — an edge-lit pane reads as glass, a flat translucent rectangle reads as a tint. A real blur is ruled out by the scrub-cost rule in **The stack**, and would in any case return nearly the pixels it was given, since these backdrops are smooth gradients. `.detail-cell` deliberately uses a _lighter_ mix than `--glass`: it sits inside `.details-panel`, and stacking the full recipe twice muddied both sheets.
 
 **Light grounds are less forgiving than dark ones for the tertiary text.** Pale text fading on a dark band drifts toward the accent and keeps contrast; dark text fading on a light band just washes out. `--fg-3` runs at **0.70** here against 0.62 in the dark theme — at 0.62 it measured 3.9:1 on the cover band, under AA. Compute contrast rather than eyeballing it, compositing alpha foregrounds over the actual band, and remember the glass lightens whatever it sits on.
-
-**On a light page the plate recolour has to make the body PALE, which the dark-theme mapping did not.** Carrying `nl = l * 1.04 + 0.06` over left the envelope at roughly the band's own lightness and it disappeared; the light mapping is `nl = l * 0.62 + 0.34` with saturation capped at 0.22, so the envelope reads by hue and by its flap rather than by being darker than the ground.
 
 **The other light-ground trap is pale gold used as text.** `.env-hint` and `.env-photo__hint` both shipped invisible (`rgba(232,207,148,.85)` and `rgba(240,220,170,.95)` on ivory) — and they must be fixed **separately**, because `.env-photo .env-photo__hint` out-specifies `.env-hint` by design (see the cover notes). The same applies to `.scroll-progress`, whose gradient had a `#f5e6bf` stop that became a gap in the bar.
 
@@ -228,9 +230,13 @@ The originals (`Image1.png`, `Image2.png`) are `Format24bppRgb` — **no alpha**
 
 The keyed PNGs are ~4.2 MB for the pair, so they are re-encoded to WebP (~327 KB, 92% smaller) and referenced through `<picture>` with the PNG as fallback. Both steps ran as throwaway scripts against the headless Chrome used for screenshots — there is no image library in the project, and none needs adding.
 
-#### Recolouring the plates (kraft/black → sage/forest)
+#### Recolouring the plates
 
-**The shipped plates are recoloured, and the originals in git history are still kraft and black.** Re-derive from those, not from the shipped files — recolouring twice compounds, and the plates have now been retargeted three times (beige/navy, then sage/forest), each time from the originals. The recolour is another throwaway canvas script; four things about it were learned the hard way and will bite anyone repeating it:
+**The originals are `ae740c2:public/images/envelope-{body,flap}.webp` — kraft body, black flap.** Always re-derive from that commit. Recolouring a recolour compounds, and the plates have been retargeted four times now (beige/navy, sage/forest, blue-grey/navy…).
+
+**Do NOT reach for `git checkout HEAD -- public/images/…`.** That was the instruction here and it is wrong: the recoloured plates get committed, so HEAD holds whatever the _last_ theme was. It failed silently and cost a round — the body came back nearly neutral grey because sage's saturation had already been crushed once, and the flap's keying rim count dropped from 3984 to 264 because a green flap reads as "gold" to the saturation key.
+
+**Check the input, don't assume it.** `plates.mjs` prints a fingerprint of what it actually decoded: the true originals are body `meanSat ≈ 0.39, darkFrac 0`, flap `meanSat ≈ 0.07, darkFrac ≈ 0.86`, and the flap's rim drop is **3984 px**. Any other numbers mean a recoloured plate got in. It also reads the files from disk as `data:` URLs rather than over HTTP — an HTTP origin put Chrome's disk cache, a possibly-stale `http.server`, and IPv4-vs-IPv6 resolution of `localhost` between the file and the canvas, and a cache-bust plus a fresh profile still did not clear it. The recolour is another throwaway canvas script; four things about it were learned the hard way and will bite anyone repeating it:
 
 - **Key each plate differently, and never on lightness.** The body plate is 100% paper (h≈30, s 0.2–0.6). The flap plate is bimodal: the card stock is essentially _neutral_ (s≈0) while the wax seal is the only saturated thing on it — but the seal's rim and cast shadow run down to l≈0.2, well inside the stock's own lightness range. Keying the flap on lightness recolours the seal's shadow and rings the wax in blue. Saturation (`s >= 0.18` is gold) separates them cleanly.
 - **Hue-rotating the black flap does nothing** — it is neutral, so the saturation must be _set_, not shifted.

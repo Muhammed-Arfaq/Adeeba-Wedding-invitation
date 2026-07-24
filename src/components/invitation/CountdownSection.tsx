@@ -101,14 +101,14 @@ export function CountdownSection() {
     { scope: rootRef },
   );
 
-  /* Mist, between two sage bands — the deck alternates sage/mist. See the
-     `Surfaces` block in styles.css. */
+  /* Midnight, between two navy bands — the deck alternates by depth within
+     one blue. See the `Surfaces` block in styles.css. */
   return (
     <section
       ref={rootRef}
       id="countdown"
       aria-label="Countdown to the wedding"
-      className="panel pat-mist paper-grain section-pad"
+      className="panel panel--dark pat-midnight paper-grain section-pad"
     >
       <Particles />
 
